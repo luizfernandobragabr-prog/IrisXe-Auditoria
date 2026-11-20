@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IrisXe.Thermal.Core</RootNamespace>
+    <!-- Projeto intencionalmente SEM dependências e SEM acesso a hardware.
+         Toda a decodificação de MSR é função pura sobre valores de 64 bits. -->
+    <Description>IRIS XE THERMAL MSR READER - nucleo puro (decodificadores documentados, politica de leitura somente-leitura, motor de diagnostico e exportacao). Fase 1, sem driver.</Description>
+  </PropertyGroup>
+
+</Project>
