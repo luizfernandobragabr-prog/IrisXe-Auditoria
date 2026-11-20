@@ -1,0 +1,4134 @@
+﻿AUDITORIA ESTATICA - IRIS XE THERMAL
+Data: 11/20/2026 13:35:56
+Arquivos encontrados: 34
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\IrisXeThermal.sln ==========
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IrisXe.Thermal.Core", "src\IrisXe.Thermal.Core\IrisXe.Thermal.Core.csproj", "{5A111C21-9A54-4F86-A0B4-51D4627C7A01}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IrisXe.Thermal.Core.Tests", "src\IrisXe.Thermal.Core.Tests\IrisXe.Thermal.Core.Tests.csproj", "{7C2D8A4E-1B33-4E9F-9C77-2E68D5B0A412}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IrisXe.Thermal.App", "src\IrisXe.Thermal.App\IrisXe.Thermal.App.csproj", "{3E84C6F0-52D7-4B9A-8E0F-6C95A1D3B7C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A111C21-9A54-4F86-A0B4-51D4627C7A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A111C21-9A54-4F86-A0B4-51D4627C7A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A111C21-9A54-4F86-A0B4-51D4627C7A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A111C21-9A54-4F86-A0B4-51D4627C7A01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C2D8A4E-1B33-4E9F-9C77-2E68D5B0A412}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C2D8A4E-1B33-4E9F-9C77-2E68D5B0A412}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C2D8A4E-1B33-4E9F-9C77-2E68D5B0A412}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C2D8A4E-1B33-4E9F-9C77-2E68D5B0A412}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E84C6F0-52D7-4B9A-8E0F-6C95A1D3B7C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E84C6F0-52D7-4B9A-8E0F-6C95A1D3B7C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E84C6F0-52D7-4B9A-8E0F-6C95A1D3B7C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E84C6F0-52D7-4B9A-8E0F-6C95A1D3B7C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\README.md ==========
+
+# IRIS XE THERMAL MSR READER
+
+Aplicativo Windows (C# / Windows Forms / .NET 10 LTS) para **diagnÃ³stico e leitura segura** dos
+registradores tÃ©rmicos do Intel Core i7-1195G7 (Tiger Lake-U) do notebook Positivo Master 4250.
+
+**Fase 1 â€” sem driver.** Este aplicativo nÃ£o instala drivers, nÃ£o altera nenhuma configuraÃ§Ã£o do
+Windows e nÃ£o executa nenhuma operaÃ§Ã£o de escrita (nÃ£o existe WRMSR, nem escrita em MMIO, PCI
+Config ou memÃ³ria fÃ­sica em nenhuma camada). A leitura real dos MSRs depende do driver
+somente-leitura da **Fase 2**, que sÃ³ serÃ¡ implementada apÃ³s revisÃ£o tÃ©cnica e autorizaÃ§Ã£o
+explÃ­cita (conforme combinado).
+
+## Escopo por fase (honesto)
+
+| Funcionalidade | Estado |
+|---|---|
+| IdentificaÃ§Ã£o do processador (famÃ­lia/modelo/stepping via registro derivado de CPUID) | **Implementado** |
+| Trava de hardware (recusa leituras fora do i7-1195G7 / TGL 0x8C) | **Implementado** |
+| DecodificaÃ§Ã£o documentada do MSR 0x1A2 (TjMAX [23:16], offset [29:24] + conferÃªncia [27:24], Tau [6:0] em bruto) | **Implementado** |
+| DecodificaÃ§Ã£o documentada do MSR 0x19C (corrente Ã— histÃ³rico, PROCHOT, readout) | **Implementado** |
+| DecodificaÃ§Ã£o documentada do MSR 0x1B1 (pacote) | **Implementado** |
+| Temperatura-alvo mÃ©dia (TjMAX âˆ’ offset) | **Implementado** |
+| Motor de diagnÃ³stico: amostragem periÃ³dica (5 s padrÃ£o), transiÃ§Ãµes com horÃ¡rio da detecÃ§Ã£o | **Implementado** |
+| Auditoria por leitura (LP, MSR, valor bruto, data/hora, resultado, erro) â€” log sem limpeza | **Implementado** |
+| ComparaÃ§Ã£o antes/depois ThrottleStop (linha de base rotulada + aviso de causalidade) | **Implementado** |
+| ExportaÃ§Ã£o CSV / JSON / NDJSON | **Implementado** |
+| Aba de teste manual â€” valores fornecidos pelo usuÃ¡rio, **sempre rotulados como SIMULADOS** | **Implementado** |
+| **Leitura REAL dos MSRs** | **Pendente â€” depende do driver somente-leitura (Fase 2, sujeito a autorizaÃ§Ã£o)** |
+| Garantia de lista fechada de endereÃ§os no driver (sem MSR arbitrÃ¡rio) | **Pendente â€” Fase 2** |
+
+## Estrutura
+
+```
+desktop/
+  IrisXeThermal.sln
+  src/
+    IrisXe.Thermal.Core/          NÃºcleo puro (sem acesso a hardware):
+      MsrAddress.cs               Lista fechada de MSRs autorizados
+      Decoding/                   Decodificadores 0x1A2 / 0x19C / 0x1B1 + avaliaÃ§Ã£o PROCHOT
+      Hardware/CpuSignature.cs    Assinatura CPUID (famÃ­lia/modelo/stepping) + trava de alvo
+      Access/                     IMsrReader (contrato SEM escrita) + leitores da Fase 1
+      Diagnostics/                Motor, auditoria, transiÃ§Ãµes, comparaÃ§Ã£o ThrottleStop
+      Export/                     Exportadores CSV/JSON/NDJSON
+      Security/ReadPolicy.cs      PolÃ­tica de leitura + auto-verificaÃ§Ãµes
+    IrisXe.Thermal.Core.Tests/    Testes unitÃ¡rios (xUnit) da decodificaÃ§Ã£o e das polÃ­ticas
+    IrisXe.Thermal.App/           Interface Windows Forms (PT-BR), 8 abas
+  docs/
+    RELATORIO_SEGURANCA.md        RelatÃ³rio de seguranÃ§a
+    VALIDACAO.md                  Resultados dos testes de compilaÃ§Ã£o e decodificaÃ§Ã£o
+```
+
+## Como compilar (no Windows 11 x64)
+
+1. Instale o **.NET 10 SDK (LTS)**: <https://dotnet.microsoft.com/download/dotnet/10.0>
+2. Em um terminal na pasta `desktop/`:
+
+```bat
+dotnet build -c Release
+dotnet run --project src\IrisXe.Thermal.App -c Release
+```
+
+3. ExecutÃ¡vel autocontido x64 (nÃ£o requer runtime instalado na mÃ¡quina alvo):
+
+```bat
+dotnet publish src\IrisXe.Thermal.App -c Release -r win-x64 --self-contained true ^
+  /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+```
+
+O binÃ¡rio sai em `src\IrisXe.Thermal.App\bin\Release\net10.0-windows\win-x64\publish\IrisXeThermalReader.exe`.
+Como nÃ£o Ã© assinado com certificado, o SmartScreen pode exibir aviso â€” clique em "Mais informaÃ§Ãµes â†’
+Executar assim mesmo", ou use `dotnet run`. O manifesto exige execuÃ§Ã£o como Administrador
+(necessÃ¡rio para o mecanismo de leitura da Fase 2; nenhuma configuraÃ§Ã£o do sistema Ã© alterada).
+
+## Como testar
+
+```bash
+dotnet test desktop/src/IrisXe.Thermal.Core.Tests
+```
+
+Os vetores de teste sÃ£o **exemplos determinÃ­sticos** construÃ­dos a partir das definiÃ§Ãµes
+documentadas â€” nÃ£o sÃ£o leituras de hardware. Cada decodificador cita a fonte Intel de cada campo.
+
+## Mecanismo de leitura (estado atual e plano)
+
+- **Fase 1 (este cÃ³digo):** `UnavailableMsrReader` â€” toda leitura retorna
+  **"NÃ£o disponÃ­vel â€” motivo"**; e `ManualMsrReader` â€” valores fornecidos manualmente,
+  **rotulados como SIMULADOS em todas as telas e no log**. Nenhum valor presumido Ã© exibido.
+- **Fase 2 (sujeita a autorizaÃ§Ã£o):** driver de kernel prÃ³prio **somente-leitura** com um Ãºnico
+  IOCTL (leitura) e **lista fechada de endereÃ§os** (0x1A2, 0x19C, 0x1B1 â€” nenhum MSR arbitrÃ¡rio Ã©
+  aceito), assinado por **atestaÃ§Ã£o Microsoft** (Secure Boot, VBS, HVCI e blocklist permanecem
+  ativos â€” sem TESTSIGNING). O cÃ³digo-fonte do driver serÃ¡ entregue para auditoria antes de
+  qualquer compilaÃ§Ã£o/instalaÃ§Ã£o, com relatÃ³rio de riscos. A interface de comunicaÃ§Ã£o do
+  aplicativo (`IMsrReader`) nÃ£o possui operaÃ§Ãµes de escrita por construÃ§Ã£o.
+- **Alternativas descartadas** (anÃ¡lise completa no hub web, pÃ¡gina "Viabilidade"): WinRing0
+  (bloqueado pela blocklist da Microsoft e sem garantia de somente-leitura), driver do Intel PCM
+  (exige TESTSIGNING para carregar no Windows 11 atual), RWEverything/WinIo (fechados/abandonados),
+  depuraÃ§Ã£o de kernel (altera configuraÃ§Ã£o de boot).
+
+## ReferÃªncias documentais
+
+- Intel 11th Generation Core Processor Families Datasheet, Vol. 1, documento 631121-012
+  (Â§4.1.3.1 Adaptive Thermal Monitor; Â§4.1.3.1.1 TCC Activation Offset + Tau; Â§4.1.3.2 DTS;
+  Â§4.1.3.3 PROCHOT# Signal; Tabela 4-4 Junction Temperature Specifications).
+- Intel 64 and IA-32 Architectures Software Developer's Manual, Vol. 4 (tabelas de
+  MSR_TEMPERATURE_TARGET, IA32_THERM_STATUS e MSR_PACKAGE_THERM_STATUS).
+- Driver termico Linux `intel_tcc` (mÃ¡scara 0x3F para o offset em TGL+) â€” corroboraÃ§Ã£o cruzada.
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\docs\RELATORIO_SEGURANCA.md ==========
+
+# RELATÃ“RIO DE SEGURANÃ‡A â€” IRIS XE THERMAL MSR READER (Fase 1)
+
+Data: (preenchida na entrega) Â· VersÃ£o: 1.0.0 Â· Fase: 1 (sem driver)
+
+## 1. PrincÃ­pio
+
+O aplicativo Ã© uma ferramenta de **diagnÃ³stico exclusivamente de leitura**. A garantia central Ã©
+**estrutural**, nÃ£o apenas de intenÃ§Ã£o:
+
+1. A interface de acesso ao hardware (`IMsrReader`, em `IrisXe.Thermal.Core/Access/`) declara
+   **apenas** `Read(processorGroup, processorNumber, msrAddress)`. NÃ£o existe mÃ©todo de escrita â€”
+   o compilador impede que qualquer cÃ³digo do projeto invoque uma operaÃ§Ã£o que nÃ£o existe.
+2. **Lista fechada de endereÃ§os**: toda leitura passa por `ReadPolicy.IsAllowed` antes do acesso.
+   EndereÃ§os arbitrÃ¡rios (0xCE, 0x610, etc.) sÃ£o recusados sem tocar em nada â€” inclusive no modo
+   de valores manuais. O driver da Fase 2 (apÃ³s autorizaÃ§Ã£o) repetirÃ¡ esta lista no prÃ³prio IOCTL.
+3. **Zero escrita**: o cÃ³digo nÃ£o contÃ©m `WRMSR`, nÃ£o escreve em MMIO, nÃ£o escreve no espaÃ§o de
+   configuraÃ§Ã£o PCI, nÃ£o acessa memÃ³ria fÃ­sica e nÃ£o altera registradores de controle (PL1/PL2,
+   PP0/PP1, PROCHOT, TCC Activation Offset, tensÃµes).
+4. **Zero alteraÃ§Ã£o no Windows**: o aplicativo nÃ£o executa `bcdedit`, nÃ£o desativa Secure Boot,
+   VBS, HVCI, Integridade da MemÃ³ria ou a blocklist de drivers vulnerÃ¡veis, nÃ£o ativa TESTSIGNING
+   e nÃ£o modifica o registro alÃ©m de **ler** chaves pÃºblicas de descriÃ§Ã£o de hardware
+   (`HKLM\HARDWARE\DESCRIPTION\...`, `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion`).
+5. **Bits histÃ³ricos preservados**: os bits de log (R/WC0) dos MSRs tÃ©rmicos sÃ³ sÃ£o limpos por
+   escrita de 0 feita por software. O aplicativo nunca escreve â€” portanto nunca limpa os registros
+   histÃ³ricos de hardware. Toda amostra tambÃ©m Ã© registrada em log de software (imune a limpezas
+   feitas por outras ferramentas).
+6. **Dados nÃ£o reais sempre rotulados**: o modo de valores manuais se identifica como
+   "SIMULADO â€” nÃ£o Ã© leitura de hardware" em todas as telas e marca cada linha do log de
+   auditoria. Nenhum valor simulado Ã© apresentado como leitura real.
+7. **Sem dependÃªncias de terceiros no caminho de acesso**: a Fase 1 nÃ£o usa WinRing0, RWEverything,
+   WinIo, RTCore64 nem driver do Intel PCM â€” os dois primeiros sÃ£o bloqueados pela blocklist da
+   Microsoft e todos expÃµem IOCTLs de escrita (anÃ¡lise completa no hub web, pÃ¡gina Viabilidade).
+
+## 2. SuperfÃ­cie de ataque considerada
+
+| Vetor | MitigaÃ§Ã£o |
+|---|---|
+| Driver vulnerÃ¡vel (BYOVD) | Nenhum driver Ã© instalado ou carregado na Fase 1. Na Fase 2, driver prÃ³prio, cÃ³digo aberto, lista fechada no IOCTL, assinatura de atestaÃ§Ã£o |
+| Abuso do driver por terceiros (leitura de MSRs por malware) | Fase 2: device object com ACL restrita a Administradores (SDDL) + hash SHA-256 fixado no aplicativo |
+| Escrita acidental | ImpossÃ­vel por construÃ§Ã£o: nÃ£o hÃ¡ caminho de escrita no cÃ³digo |
+| Dados falsos enganando o operador | Rotulagem obrigatÃ³ria de modo simulado em toda a UI e no log |
+| ExecuÃ§Ã£o em hardware nÃ£o alvo | Trava de assinatura CPUID (famÃ­lia 6, modelo 0x8C) com recusa explÃ­cita |
+
+## 3. Riscos residuais declarados
+
+- O executÃ¡vel distribuÃ­do sem assinatura comercial dispara aviso do SmartScreen.
+- A leitura real (Fase 2) exige execuÃ§Ã£o como Administrador (necessÃ¡rio ao carregar o driver);
+  o aplicativo nÃ£o faz nada de privileged alÃ©m da leitura autorizada.
+- Na Fase 1, os campos dependentes de MSR exibem "NÃ£o disponÃ­vel â€” motivo"; nada Ã© presumido.
+
+## 4. Auto-verificaÃ§Ãµes em execuÃ§Ã£o
+
+A aba "SeguranÃ§a" do aplicativo executa `ReadPolicy.SelfCheck()` e exibe, em tempo de execuÃ§Ã£o,
+as afirmaÃ§Ãµes acima com a evidÃªncia correspondente no cÃ³digo.
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\docs\VALIDACAO.md ==========
+
+# RELATÃ“RIO DE VALIDAÃ‡ÃƒO â€” Fase 1
+
+Ambiente de compilaÃ§Ã£o: .NET SDK 10.0.404 (Linux arm64, cross-compile para win-x64).
+
+## 1. CompilaÃ§Ã£o
+
+| Item | Resultado |
+|---|---|
+| `dotnet build -c Release` (3 projetos) | **Sucesso â€” 0 erros, 0 avisos** |
+| `dotnet publish -r win-x64 --self-contained -p:PublishSingleFile=true` | **Sucesso** â€” `IrisXeThermalReader.exe` |
+| CabeÃ§alho do executÃ¡vel | `MZ` / `PE\0\0` Â· Machine `0x8664` (AMD64) Â· Optional header `0x20B` (PE32+) Â· Subsystem 2 (Windows GUI) |
+| SHA-256 do .exe | `4371266b5b03f6c7f2361d6d7f11487ead3482642cd8c727baf777c9f6750892` |
+
+**LimitaÃ§Ã£o declarada:** o executÃ¡vel NÃƒO pÃ´de ser executado neste ambiente (Linux). A interface
+WinForms e a identificaÃ§Ã£o de hardware (registro do Windows / WMI) precisam ser validadas por
+vocÃª no prÃ³prio equipamento. Nenhuma alegaÃ§Ã£o de funcionamento da UI no Windows Ã© feita aqui.
+
+## 2. Testes unitÃ¡rios â€” `dotnet test` (xUnit)
+
+**27 aprovados / 0 falhas / 0 ignorados.**
+
+| Grupo | Testes | Cobertura |
+|---|---|---|
+| TemperatureTargetDecodeTests | 5 | TjMAX nÃ£o presumido (100 e 105 Â°C), offset 13 â†’ alvo 87 Â°C, divergÃªncia [29:24] Ã— [27:24], reservados nÃ£o interpretados, Tau sem conversÃ£o |
+| ThermStatusDecodeTests | 4 | Temperatura = TjMAX âˆ’ readout, leitura invÃ¡lida â†’ nula, throttling corrente + log, PROCHOT externo |
+| PackageThermStatusDecodeTests | 3 | Logs do pacote, bits â‰¥ 23 nÃ£o documentados, origem nÃ£o confirmÃ¡vel sÃ³ com logs |
+| CpuSignatureTests | 3 | i7-1195G7 (F6/M140) aceito; Ice Lake (M126) e AMD recusados |
+| ReadPolicyTests | 6 | Somente 0x1A2/0x19C/0x1B1; recusa 0xCE/0x1FC/0x610; "NÃ£o disponÃ­vel â€” motivo" sem valores |
+| TransitionAndExportTests | 6 | TransiÃ§Ãµes com nota temporal; auditoria com todos os campos; JSON declara 0 escritas; comparaÃ§Ã£o ThrottleStop |
+
+CorreÃ§Ã£o registrada durante a validaÃ§Ã£o: um vetor de teste do pacote (`0x88280800`) estava errado
+â€” setava apenas o bit 11, nÃ£o o bit 3. O decodificador estava correto; o vetor foi corrigido para
+`0x88280808`. Erro do autor do teste, documentado aqui por transparÃªncia.
+
+## 3. Paridade C# Ã— Python (decodificador do hub)
+
+`backend/tests/test_msr_decode.py` executa os mesmos vetores contra o decodificador Python do
+hub â€” mesmas mÃ¡scaras e resultados (inclusive mÃ¡scaras de 64 bits idÃªnticas).
+
+## 4. Auditoria estÃ¡tica de escrita
+
+Busca no cÃ³digo executÃ¡vel (excluindo comentÃ¡rios): `wrmsr`, `__writemsr`, `WriteMsr`,
+`DeviceIoControl`, `CreateFile`, `outp`, `MmMapIoSpace`, `DllImport`, `LibraryImport`, `extern`,
+`Process.Start`, `Registry.SetValue`, `OpenSubKey(..., true)` â†’ **0 ocorrÃªncias**.
+O contrato `IMsrReader` declara apenas `Read()` e propriedades somente-leitura.
+
+## 5. O que NÃƒO foi validado (depende de acesso real ao MSR â€” Fase 2)
+
+- Leitura real dos registradores no i7-1195G7.
+- Se o TCC Activation Offset real Ã© 13 (valor do ThrottleStop).
+- ComparaÃ§Ã£o antes/depois do ThrottleStop com valores reais.
+- ConsistÃªncia de 0x1A2/0x1B1 entre os 8 processadores lÃ³gicos em hardware real.
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\app.manifest ==========
+
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="IrisXe.Thermal.App"/>
+
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- Administrador: necessario para o mecanismo de leitura (Fase 2). Nenhuma
+             configuracao do Windows e alterada pelo manifesto ou pelo aplicativo. -->
+        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 / Windows 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd4a36a348}" />
+    </application>
+  </compatibility>
+</assembly>
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\IrisXe.Thermal.App.csproj ==========
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworkIdentifier>.NETCoreApp</TargetFrameworkIdentifier>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IrisXe.Thermal.App</RootNamespace>
+    <AssemblyName>IrisXeThermalReader</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.0</Version>
+    <Product>IRIS XE THERMAL MSR READER</Product>
+    <Description>Diagnostico termico (somente leitura) para o Intel Core i7-1195G7. Fase 1: sem driver.</Description>
+    <!-- Permite compilar/publicar o WinForms para Windows a partir de um host nao-Windows
+         (cross-compile de validacao). Em producao, compile no proprio Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IrisXe.Thermal.Core\IrisXe.Thermal.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs ==========
+
+using System.Text;
+using IrisXe.Thermal.Core;
+using IrisXe.Thermal.Core.Access;
+using IrisXe.Thermal.Core.Decoding;
+using IrisXe.Thermal.Core.Diagnostics;
+using IrisXe.Thermal.Core.Export;
+using IrisXe.Thermal.Core.Hardware;
+using IrisXe.Thermal.Core.Security;
+using Microsoft.Win32;
+
+namespace IrisXe.Thermal.App;
+
+/// <summary>
+/// Janela principal (PT-BR). FASE 1 â€” sem driver e sem qualquer acesso privilegiado:
+/// o mecanismo de leitura ativo e "Indisponivel" ou "Valores manuais (SIMULADO)".
+/// Todas as operacoes sao estritamente somente leitura e todas as leituras sao auditadas.
+/// </summary>
+public sealed class MainForm : Form
+{
+    private readonly AuditLog _audit = new();
+    private readonly UnavailableMsrReader _unavailable = new();
+    private readonly ManualMsrReader _manual = new();
+    private readonly DiagnosticEngine _engine;
+    private readonly System.Windows.Forms.Timer _sampleTimer = new() { Interval = 5000 };
+    private readonly List<(int Group, int Number)> _logicalProcessors = new();
+    private readonly bool _isAdmin;
+
+    private CpuSignature? _cpu;
+    private string? _cpuGateReason;
+    private string _cpuGateMessage = string.Empty;
+    private ThrottleStopBaseline? _baseline;
+    private bool _samplingBusy;
+
+    private NumericUpDown _numInterval = null!;
+    private Button _btnToggleAuto = null!;
+    private Label _lblLastUpdate = null!;
+    private Label _lblMechanism = null!;
+    private Label _banner = null!;
+
+    private readonly Dictionary<string, Label> _idValues = new();
+
+    private Label _lblTargetHex = null!;
+    private Label _lblTargetBin = null!;
+    private Label _lblTargetDec = null!;
+    private Label _lblTjMax = null!;
+    private Label _lblOffsetTgl = null!;
+    private Label _lblOffsetSdm = null!;
+    private Label _lblTau = null!;
+    private Label _lblAvg = null!;
+    private DataGridView _gridTargetLp = null!;
+    private RichTextBox _txtTargetNotes = null!;
+
+    private DataGridView _gridCore = null!;
+    private DataGridView _gridEvents = null!;
+    private Label _lblPackageSummary = null!;
+    private Label _lblProchot = null!;
+    private Label _lblThermalTime = null!;
+
+    private NumericUpDown _numRegisterLp = null!;
+    private DataGridView _gridRegisters = null!;
+
+    private ComboBox _cmbMechanism = null!;
+    private ComboBox _cmbManualMsr = null!;
+    private TextBox _txtHexInput = null!;
+    private RichTextBox _txtManualResult = null!;
+
+    private DataGridView _gridAudit = null!;
+    private Label _lblAuditCount = null!;
+
+    private DataGridView _gridComparison = null!;
+    private Label _lblComparisonInfo = null!;
+
+    public MainForm()
+    {
+        Text = UiTexts.AppTitle;
+        Font = new Font("Segoe UI", 9.5F);
+        StartPosition = FormStartPosition.CenterScreen;
+        MinimumSize = new Size(1180, 760);
+        Size = new Size(1280, 820);
+
+        try
+        {
+            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            _isAdmin = new System.Security.Principal.WindowsPrincipal(identity)
+                .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+        }
+        catch
+        {
+            _isAdmin = false;
+        }
+
+        DetectTopology();
+        _engine = new DiagnosticEngine(_unavailable, _audit, _logicalProcessors);
+
+        BuildUi();
+
+        _sampleTimer.Tick += async (_, _) => await RunSamplingAsync();
+        Shown += async (_, _) =>
+        {
+            await Task.Run(FillIdentificationTab);
+            FillSecurityTab();
+        };
+    }
+
+    // ------------------------------------------------------------------ topologia / hardware
+
+    /// <summary>
+    /// Enumera os processadores logicos. A contagem vem das subchaves de
+    /// HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor (uma por processador logico), com
+    /// fallback para Environment.ProcessorCount. Para 8 processadores logicos o Windows usa um
+    /// unico grupo de processadores (grupos so sao criados acima de 64 LPs) â€” premissa
+    /// documentada na interface. Em ambiente de desenvolvimento nao-Windows, um conjunto
+    /// sintetico e criado para permitir revisao da interface (rotulado como tal).
+    /// </summary>
+    private void DetectTopology()
+    {
+        try
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                for (var i = 0; i < Math.Max(1, Environment.ProcessorCount); i++)
+                {
+                    _logicalProcessors.Add((0, i));
+                }
+
+                _cpuGateMessage =
+                    "Ambiente nÃ£o-Windows (revisÃ£o do cÃ³digo): leituras indisponÃ­veis; interface em modo de revisÃ£o.";
+                return;
+            }
+
+            using var baseKey = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor");
+            var lpCount = baseKey?.SubKeyCount ?? Environment.ProcessorCount;
+            for (var i = 0; i < lpCount; i++)
+            {
+                _logicalProcessors.Add((0, i)); // grupo 0: premissa documentada para <= 64 LPs
+            }
+        }
+        catch (Exception ex)
+        {
+            var count = Math.Max(1, Environment.ProcessorCount);
+            for (var i = 0; i < count; i++)
+            {
+                _logicalProcessors.Add((0, i));
+            }
+
+            _cpuGateMessage = $"Topologia nÃ£o pÃ´de ser lida ({ex.Message}); usando {count} processadores lÃ³gicos como premissa.";
+        }
+    }
+
+    /// <summary>Preenche a aba de identificacao com dados do registro do Windows (somente leitura).</summary>
+    private void FillIdentificationTab()
+    {
+        try
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                SetId("cpu", "NÃ£o disponÃ­vel â€” ambiente nÃ£o-Windows (revisÃ£o do cÃ³digo)");
+                SetId("signature", "NÃ£o disponÃ­vel â€” " + UiTexts.CpuIdNote);
+                SetId("fms", "NÃ£o disponÃ­vel");
+                SetId("arch", System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString());
+                SetId("cores", "NÃ£o disponÃ­vel â€” ambiente nÃ£o-Windows");
+                SetId("lps", _logicalProcessors.Count.ToString());
+                SetId("os", "NÃ£o disponÃ­vel â€” ambiente nÃ£o-Windows");
+                SetId("admin", _isAdmin ? "Sim" : "NÃ£o");
+                return;
+            }
+
+            using var cpuKey = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
+            var identifier = cpuKey?.GetValue("Identifier") as string ?? string.Empty;
+            var brand = cpuKey?.GetValue("ProcessorNameString") as string ?? string.Empty;
+            var mhz = cpuKey?.GetValue("~MHz") as int?;
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                SetId("cpu", "NÃ£o disponÃ­vel â€” chave de registro do processador ausente");
+            }
+            else
+            {
+                try
+                {
+                    _cpu = CpuSignature.Parse(identifier, string.IsNullOrWhiteSpace(brand) ? identifier : brand);
+                    _cpuGateReason = _cpu.UnsupportedReason;
+                    SetId("cpu", _cpu.BrandName);
+                    SetId("signature", _cpu.Identifier);
+                    SetId("fms", $"FamÃ­lia {_cpu.Family} (0x{_cpu.Family:X}) Â· Modelo {_cpu.Model} (0x{_cpu.Model:X}) Â· Stepping {_cpu.Stepping}"
+                               + $" â€” alvo do projeto: FamÃ­lia 6, Modelo 0x8C (Tiger Lake-U i7-1195G7)");
+                }
+                catch (FormatException fex)
+                {
+                    _cpuGateReason = fex.Message;
+                    SetId("signature", "NÃ£o disponÃ­vel â€” " + fex.Message);
+                }
+
+                if (mhz is not null)
+                {
+                    SetId("fms", GetId("fms") + $" Â· ~{mhz} MHz (informe do sistema)");
+                }
+            }
+
+            SetId("arch", "x86-64 (Intel64) â€” " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture);
+            SetId("lps", _logicalProcessors.Count + " processadores lÃ³gicos (grupo 0 â€” premissa documentada para <= 64 LPs)");
+            SetId("cores", QueryCoreCount());
+
+            // Sistema operacional: valores diretos do registro (ProductName e legado "Windows 10"
+            // mesmo no Windows 11, por isso preferimos EditionID + DisplayVersion + Build).
+            using var osKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+            var edition = osKey?.GetValue("EditionID") as string ?? "N/D";
+            var display = osKey?.GetValue("DisplayVersion") as string ?? "N/D";
+            var build = osKey?.GetValue("CurrentBuildNumber") as string ?? "N/D";
+            var ubr = osKey?.GetValue("UBR") as int?;
+            SetId("os", $"Windows ({edition}), versÃ£o {display}, build {build}.{(ubr?.ToString() ?? "N/D")} "
+                      + $"â€” {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
+
+            SetId("admin", _isAdmin
+                ? "Sim (o aplicativo exige elevaÃ§Ã£o para o mecanismo de leitura da Fase 2)"
+                : "NÃ£o");
+        }
+        catch (Exception ex)
+        {
+            SetId("cpu", "NÃ£o disponÃ­vel â€” falha na identificaÃ§Ã£o: " + ex.Message);
+        }
+    }
+
+    /// <summary>Numero de nucleos fisicos via WMI (Win32_Processor). Falha = Nao disponivel com motivo.</summary>
+    private string QueryCoreCount()
+    {
+        try
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                return "NÃ£o disponÃ­vel â€” ambiente nÃ£o-Windows";
+            }
+
+            using var searcher = new System.Management.ManagementObjectSearcher(
+                "SELECT NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor");
+            foreach (var item in searcher.Get())
+            {
+                using (item)
+                {
+                    var cores = item["NumberOfCores"]?.ToString();
+                    var lps = item["NumberOfLogicalProcessors"]?.ToString();
+                    if (cores is not null)
+                    {
+                        return $"{cores} nÃºcleos fÃ­sicos / {lps ?? "N/D"} processadores lÃ³gicos (Win32_Processor)";
+                    }
+                }
+            }
+
+            return "NÃ£o disponÃ­vel â€” WMI nÃ£o retornou dados";
+        }
+        catch (Exception ex)
+        {
+            return "NÃ£o disponÃ­vel â€” falha no WMI: " + ex.Message;
+        }
+    }
+
+    private string GetId(string key) => _idValues.TryGetValue(key, out var l) ? l.Text : string.Empty;
+
+    private void SetId(string key, string text)
+    {
+        if (_idValues.TryGetValue(key, out var label))
+        {
+            label.Text = text;
+        }
+    }
+
+    // ------------------------------------------------------------------ construcao da UI
+
+    private void BuildUi()
+    {
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(8) };
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        _banner = new Label
+        {
+            Dock = DockStyle.Fill,
+            Text = UiTexts.Phase1Banner,
+            BackColor = Color.FromArgb(255, 247, 224),
+            ForeColor = Color.FromArgb(80, 60, 0),
+            Padding = new Padding(8),
+            Height = 56,
+            TextAlign = ContentAlignment.MiddleLeft,
+        };
+        root.Controls.Add(_banner, 0, 0);
+        root.Controls.Add(BuildTopStrip(), 0, 1);
+
+        var tabs = new TabControl { Dock = DockStyle.Fill };
+        tabs.TabPages.Add(BuildTabIdentification());
+        tabs.TabPages.Add(BuildTabTarget());
+        tabs.TabPages.Add(BuildTabThermal());
+        tabs.TabPages.Add(BuildTabRegisters());
+        tabs.TabPages.Add(BuildTabManual());
+        tabs.TabPages.Add(BuildTabAudit());
+        tabs.TabPages.Add(BuildTabComparison());
+        tabs.TabPages.Add(BuildTabSecurity());
+        root.Controls.Add(tabs, 0, 2);
+
+        Controls.Add(root);
+    }
+
+    private Control BuildTopStrip()
+    {
+        var strip = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            Padding = new Padding(0, 6, 0, 6),
+            Height = 44,
+        };
+
+        strip.Controls.Add(new Label { Text = "Intervalo de amostragem (s):", AutoSize = true, Margin = new Padding(3, 8, 3, 0) });
+        _numInterval = new NumericUpDown { Minimum = 1, Maximum = 3600, Value = 5, Width = 70 };
+        _numInterval.Name = "intervalo-amostragem";
+        strip.Controls.Add(_numInterval);
+
+        _btnToggleAuto = new Button { Text = "Iniciar amostragem automÃ¡tica", Width = 220 };
+        _btnToggleAuto.Name = "btn-toggle-auto";
+        _btnToggleAuto.Click += OnToggleAuto;
+        strip.Controls.Add(_btnToggleAuto);
+
+        var btnRefresh = new Button { Text = "Atualizar agora (leitura manual)", Width = 240 };
+        btnRefresh.Name = "btn-atualizar-agora";
+        btnRefresh.Click += async (_, _) => await RunSamplingAsync();
+        strip.Controls.Add(btnRefresh);
+
+        _lblMechanism = new Label
+        {
+            Text = "Mecanismo de leitura: " + _engine.Reader.MechanismName,
+            AutoSize = true,
+            Margin = new Padding(12, 8, 3, 0),
+            ForeColor = Color.FromArgb(140, 20, 20),
+            Font = new Font(Font, FontStyle.Bold),
+        };
+        strip.Controls.Add(_lblMechanism);
+
+        _lblLastUpdate = new Label
+        {
+            Text = "Ãšltima amostragem: â€”",
+            AutoSize = true,
+            Margin = new Padding(12, 8, 3, 0),
+        };
+        _lblLastUpdate.Name = "lbl-ultima-amostragem";
+        strip.Controls.Add(_lblLastUpdate);
+
+        return strip;
+    }
+
+    private static Label ValueLabel() => new()
+    {
+        AutoSize = true,
+        Font = new Font("Consolas", 9.75F, FontStyle.Bold),
+        Text = "NÃ£o disponÃ­vel",
+        TextAlign = ContentAlignment.MiddleLeft,
+        Margin = new Padding(3, 1, 3, 1),
+    };
+
+    private static TableLayoutPanel TwoColumnPanel()
+    {
+        var panel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, AutoSize = true, Padding = new Padding(8) };
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        return panel;
+    }
+
+    private static void AddRow(TableLayoutPanel panel, string labelText, Control value)
+    {
+        var row = panel.RowCount;
+        panel.RowCount = row + 1;
+        panel.Controls.Add(new Label { Text = labelText, AutoSize = true, Margin = new Padding(3, 4, 12, 2), Font = new Font(panel.Font, FontStyle.Bold) }, 0, row);
+        panel.Controls.Add(value, 1, row);
+    }
+
+    private static DataGridView MakeGrid(params (string Name, string Header, int Width)[] columns)
+    {
+        var grid = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            ReadOnly = true,
+            AllowUserToAddRows = false,
+            AllowUserToDeleteRows = false,
+            AllowUserToResizeRows = false,
+            RowHeadersVisible = false,
+            AutoGenerateColumns = false,
+            BackgroundColor = Color.White,
+            BorderStyle = BorderStyle.FixedSingle,
+            SelectionMode = DataGridViewSelectionMode.CellSelect,
+        };
+        foreach (var (name, header, width) in columns)
+        {
+            grid.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = name,
+                HeaderText = header,
+                Width = width > 0 ? width : 0,
+                AutoSizeMode = width > 0 ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.Fill,
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+            });
+        }
+
+        return grid;
+    }
+
+    // --------------------------------------------------------------- aba 1: identificacao
+
+    private TabPage BuildTabIdentification()
+    {
+        var page = new TabPage("IdentificaÃ§Ã£o do hardware");
+        var panel = TwoColumnPanel();
+
+        var cpuLabel = ValueLabel();
+        _idValues["cpu"] = cpuLabel;
+        AddRow(panel, "Nome do processador", cpuLabel);
+
+        var signatureLabel = ValueLabel();
+        _idValues["signature"] = signatureLabel;
+        AddRow(panel, "Assinatura CPUID (via registro do Windows)", signatureLabel);
+
+        var fmsLabel = ValueLabel();
+        _idValues["fms"] = fmsLabel;
+        AddRow(panel, "FamÃ­lia / Modelo / Stepping", fmsLabel);
+
+        var archLabel = ValueLabel();
+        _idValues["arch"] = archLabel;
+        AddRow(panel, "Arquitetura", archLabel);
+
+        var coresLabel = ValueLabel();
+        _idValues["cores"] = coresLabel;
+        AddRow(panel, "NÃºcleos fÃ­sicos", coresLabel);
+
+        var lpsLabel = ValueLabel();
+        _idValues["lps"] = lpsLabel;
+        AddRow(panel, "Processadores lÃ³gicos", lpsLabel);
+
+        var osLabel = ValueLabel();
+        _idValues["os"] = osLabel;
+        AddRow(panel, "Sistema operacional", osLabel);
+
+        var adminLabel = ValueLabel();
+        _idValues["admin"] = adminLabel;
+        AddRow(panel, "Executando como Administrador", adminLabel);
+
+        AddRow(panel, "Estado do mecanismo de leitura", BuildMechanismPanel());
+
+        var targetLabel = ValueLabel();
+        _idValues["target"] = targetLabel;
+        AddRow(panel, "VerificaÃ§Ã£o do hardware alvo", targetLabel);
+
+        page.Controls.Add(panel);
+
+        // Notas metodologicas
+        var notes = new RichTextBox
+        {
+            Dock = DockStyle.Bottom,
+            Height = 150,
+            ReadOnly = true,
+            BackColor = Color.FromArgb(248, 248, 252),
+            Font = new Font("Segoe UI", 9F),
+        };
+        notes.AppendText("Notas metodolÃ³gicas:" + Environment.NewLine);
+        notes.AppendText("â€¢ " + UiTexts.CpuIdNote + Environment.NewLine);
+        notes.AppendText("â€¢ Leituras em processadores nÃ£o alvo sÃ£o RECUSADAS (requisito 9.1)." + Environment.NewLine);
+        page.Controls.Add(notes);
+
+        return page;
+    }
+
+    private Control BuildMechanismPanel()
+    {
+        var panel = new TableLayoutPanel { ColumnCount = 1, AutoSize = true, Dock = DockStyle.Fill };
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        var lbl = new Label
+        {
+            Text = _engine.Reader.MechanismName + " â€” " + _engine.Reader.StatusDescription,
+            AutoSize = true,
+            MaximumSize = new Size(900, 0),
+            Margin = new Padding(3, 1, 3, 1),
+        };
+        lbl.Name = "lbl-mecanismo-estado";
+        panel.Controls.Add(lbl);
+
+        return panel;
+    }
+
+    // --------------------------------------------------------------- aba 2: temperatura-alvo
+
+    private TabPage BuildTabTarget()
+    {
+        var page = new TabPage("Temperatura-alvo (0x1A2)");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var panel = TwoColumnPanel();
+        _lblTargetHex = ValueLabel();
+        _lblTargetBin = ValueLabel();
+        _lblTargetDec = ValueLabel();
+        _lblTjMax = ValueLabel();
+        _lblOffsetTgl = ValueLabel();
+        _lblOffsetSdm = ValueLabel();
+        _lblTau = ValueLabel();
+        _lblAvg = ValueLabel();
+        AddRow(panel, "Valor bruto (hexadecimal, 64 bits)", _lblTargetHex);
+        AddRow(panel, "Valor bruto (binÃ¡rio, grupos de 8)", _lblTargetBin);
+        AddRow(panel, "Valor bruto (decimal)", _lblTargetDec);
+        AddRow(panel, "TjMAX (bits [23:16])", _lblTjMax);
+        AddRow(panel, "TCC Activation Offset (bits [29:24] â€” datasheet TGL)", _lblOffsetTgl);
+        AddRow(panel, "TCC Activation Offset (bits [27:24] â€” SDM, conferÃªncia)", _lblOffsetSdm);
+        AddRow(panel, "Tau bruto (bits [6:0])", _lblTau);
+        AddRow(panel, "Temperatura-alvo mÃ©dia (TjMAX âˆ’ offset)", _lblAvg);
+        layout.Controls.Add(panel, 0, 0);
+
+        _lblTargetDec.Name = "target-valor-dec";
+
+        _gridTargetLp = MakeGrid(
+            ("lp", "Processador lÃ³gico", 130),
+            ("hex", "Valor bruto (hex)", 200),
+            ("tjmax", "TjMAX (Â°C)", 100),
+            ("offset", "Offset [29:24]", 110),
+            ("tau", "Tau [6:0]", 90));
+        _gridTargetLp.Name = "grid-target-lp";
+        layout.Controls.Add(_gridTargetLp, 0, 2);
+
+        _txtTargetNotes = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            Height = 170,
+            ReadOnly = true,
+            BackColor = Color.FromArgb(248, 248, 252),
+            Font = new Font("Segoe UI", 9F),
+        };
+        _txtTargetNotes.Name = "target-notas";
+        layout.Controls.Add(_txtTargetNotes, 0, 3);
+
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    // --------------------------------------------------------------- aba 3: status termico
+
+    private TabPage BuildTabThermal()
+    {
+        var page = new TabPage("Status tÃ©rmico (0x19C / 0x1B1)");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 55));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 45));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        _lblThermalTime = new Label { Text = "Ãšltima leitura: â€”", AutoSize = true };
+        layout.Controls.Add(_lblThermalTime, 0, 0);
+
+        _lblPackageSummary = new Label
+        {
+            Text = "Pacote (0x1B1): NÃ£o disponÃ­vel â€” nenhuma amostragem realizada.",
+            AutoSize = true,
+            MaximumSize = new Size(1100, 0),
+        };
+        _lblPackageSummary.Name = "lbl-pacote-resumo";
+        layout.Controls.Add(_lblPackageSummary, 0, 1);
+
+        _gridCore = MakeGrid(
+            ("lp", "Processador lÃ³gico", 120),
+            ("temp", "Temperatura (Â°C)", 120),
+            ("readout", "Digital Readout [22:16]", 150),
+            ("status", "Thermal Status (corrente)", 170),
+            ("log", "Thermal Status Log (histÃ³rico)", 190),
+            ("prochot", "PROCHOT Event (corrente/externo)", 220),
+            ("prochotlog", "PROCHOT Log (histÃ³rico)", 170),
+            ("crit", "Critical Temp (corrente/log)", 180),
+            ("power", "Power Limit (corrente/log)", 170));
+        _gridCore.Name = "grid-nucleos";
+        layout.Controls.Add(_gridCore, 0, 2);
+
+        _gridEvents = MakeGrid(
+            ("quando", "Detectado em (UTC)", 150),
+            ("msr", "MSR", 80),
+            ("escopo", "Escopo", 120),
+            ("indicador", "Indicador", 230),
+            ("tipo", "Tipo", 90),
+            ("de", "De", 130),
+            ("para", "Para", 130),
+            ("nota", "Nota de honestidade temporal", 400));
+        _gridEvents.Name = "grid-eventos";
+        layout.Controls.Add(_gridEvents, 0, 3);
+
+        var prochotPanel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, AutoSize = true };
+        prochotPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _lblProchot = new Label
+        {
+            Text = "PROCHOT: NÃ£o disponÃ­vel â€” nenhuma amostragem realizada.",
+            AutoSize = true,
+            MaximumSize = new Size(1100, 0),
+        };
+        _lblProchot.Name = "lbl-prochot-avaliacao";
+        prochotPanel.Controls.Add(_lblProchot);
+        layout.Controls.Add(prochotPanel, 0, 4);
+
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    // --------------------------------------------------------------- aba 4: registradores
+
+    private TabPage BuildTabRegisters()
+    {
+        var page = new TabPage("Registradores (valores brutos)");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var selector = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Height = 40 };
+        selector.Controls.Add(new Label { Text = "Processador lÃ³gico:", AutoSize = true, Margin = new Padding(3, 6, 3, 0) });
+        _numRegisterLp = new NumericUpDown { Minimum = 0, Maximum = Math.Max(0, _logicalProcessors.Count - 1), Value = 0, Width = 60 };
+        _numRegisterLp.Name = "selector-lp-registradores";
+        _numRegisterLp.ValueChanged += (_, _) => RefreshRegisterGrid();
+        selector.Controls.Add(_numRegisterLp);
+        layout.Controls.Add(selector, 0, 0);
+
+        _gridRegisters = MakeGrid(
+            ("msr", "Registrador", 340),
+            ("endereco", "EndereÃ§o", 90),
+            ("hex", "Hexadecimal", 200),
+            ("bin", "BinÃ¡rio (grupos de 8)", 520),
+            ("dec", "Decimal", 150));
+        _gridRegisters.Name = "grid-registradores";
+        layout.Controls.Add(_gridRegisters, 0, 1);
+
+        var actions = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Height = 44 };
+        var btnCopy = new Button { Text = "Copiar valores para a Ã¡rea de transferÃªncia", Width = 300 };
+        btnCopy.Name = "btn-copiar-registradores";
+        btnCopy.Click += OnCopyRegisters;
+        actions.Controls.Add(btnCopy);
+        actions.Controls.Add(new Label
+        {
+            Text = "Escopos documentados: 0x19C por processador lÃ³gico Â· 0x1B1 por pacote Â· 0x1A2 por processador lÃ³gico (SDM Vol. 4).",
+            AutoSize = true,
+            Margin = new Padding(12, 8, 3, 0),
+        });
+        layout.Controls.Add(actions, 0, 2);
+
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    private void OnCopyRegisters(object? sender, EventArgs e)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            foreach (DataGridViewRow row in _gridRegisters.Rows)
+            {
+                sb.AppendLine(string.Join(" | ", _gridRegisters.Columns
+                    .Cast<DataGridViewColumn>()
+                    .Select(c => $"{c.HeaderText}: {row.Cells[c.Index].Value}")));
+            }
+
+            Clipboard.SetText(sb.ToString());
+            MessageBox.Show(this, "Valores copiados.", "Copiar", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, "NÃ£o disponÃ­vel â€” falha ao copiar: " + ex.Message, "Copiar",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    // --------------------------------------------------------------- aba 5: teste manual
+
+    private TabPage BuildTabManual()
+    {
+        var page = new TabPage("Teste manual (SIMULADO)");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        var warn = new Label
+        {
+            Text = "ESTA ABA DECODIFICA VALORES FORNECIDOS MANUALMENTE. NÃƒO REALIZA LEITURA DO HARDWARE. "
+                 + "VALORES MANUAIS SÃƒO SEMPRE ROTULADOS COMO SIMULADOS.",
+            BackColor = Color.FromArgb(255, 247, 224),
+            ForeColor = Color.FromArgb(80, 60, 0),
+            Padding = new Padding(8),
+            Height = 48,
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleLeft,
+        };
+        layout.Controls.Add(warn, 0, 0);
+
+        var form = new TableLayoutPanel { ColumnCount = 4, AutoSize = true, Dock = DockStyle.Fill };
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        form.Controls.Add(new Label { Text = "Mecanismo:", AutoSize = true, Margin = new Padding(3, 6, 3, 0) }, 0, 0);
+        _cmbMechanism = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 380 };
+        _cmbMechanism.Items.Add(_unavailable.MechanismName);
+        _cmbMechanism.Items.Add(ManualMsrReader.MechanismLabel);
+        _cmbMechanism.SelectedIndex = 0;
+        _cmbMechanism.Name = "combo-mecanismo";
+        _cmbMechanism.SelectedIndexChanged += OnMechanismChanged;
+        form.Controls.Add(_cmbMechanism, 1, 0);
+
+        form.Controls.Add(new Label { Text = "Registrador:", AutoSize = true, Margin = new Padding(18, 6, 3, 0) }, 2, 0);
+        _cmbManualMsr = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 420 };
+        foreach (var address in MsrAddress.All)
+        {
+            _cmbManualMsr.Items.Add($"{MsrAddress.Name(address)} â€” 0x{address:X}");
+        }
+
+        _cmbManualMsr.SelectedIndex = 0;
+        _cmbManualMsr.Name = "combo-registrador-manual";
+        form.Controls.Add(_cmbManualMsr, 3, 0);
+
+        form.Controls.Add(new Label { Text = "Valor bruto (hex, 64 bits):", AutoSize = true, Margin = new Padding(3, 6, 3, 0) }, 0, 1);
+        _txtHexInput = new TextBox { Width = 260, Font = new Font("Consolas", 10F), Text = "" };
+        _txtHexInput.Name = "input-hex-manual";
+        form.Controls.Add(_txtHexInput, 1, 1);
+        form.SetColumnSpan(_txtHexInput, 3);
+
+        var actions = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Dock = DockStyle.Fill };
+        var btnDecode = new Button { Text = "Decodificar valor bruto", Width = 220 };
+        btnDecode.Name = "btn-decodificar-manual";
+        btnDecode.Click += OnManualDecode;
+        actions.Controls.Add(btnDecode);
+
+        var btnApply = new Button { Text = "Aplicar como valor manual (todos os LPs)", Width = 300 };
+        btnApply.Name = "btn-aplicar-manual";
+        btnApply.Click += OnManualApply;
+        actions.Controls.Add(btnApply);
+        layout.Controls.Add(actions, 0, 2);
+
+        _txtManualResult = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            ReadOnly = true,
+            Font = new Font("Consolas", 9F),
+            BackColor = Color.FromArgb(248, 248, 252),
+        };
+        _txtManualResult.Name = "resultado-manual";
+        layout.Controls.Add(_txtManualResult, 0, 3);
+
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    private void OnMechanismChanged(object? sender, EventArgs e)
+    {
+        if (_cmbMechanism.SelectedIndex == 1)
+        {
+            _engine.SetReader(_manual);
+            _banner.Text = UiTexts.SimulatedBanner;
+            _banner.BackColor = Color.FromArgb(255, 224, 224);
+        }
+        else
+        {
+            _engine.SetReader(_unavailable);
+            _banner.Text = UiTexts.Phase1Banner;
+            _banner.BackColor = Color.FromArgb(255, 247, 224);
+        }
+
+        _lblMechanism.Text = "Mecanismo de leitura: " + _engine.Reader.MechanismName;
+        RefreshMechanismState();
+    }
+
+    private void RefreshMechanismState()
+    {
+        var mechanismState = Controls.Find("lbl-mecanismo-estado", true).FirstOrDefault() as Label;
+        if (mechanismState is not null)
+        {
+            mechanismState.Text = _engine.Reader.MechanismName + " â€” " + _engine.Reader.StatusDescription
+                                + (_engine.Reader.IsSimulated ? " [SIMULADO]" : string.Empty);
+        }
+
+        if (_idValues.TryGetValue("target", out var target))
+        {
+            target.Text = _cpu is { UnsupportedReason: null }
+                ? "Confirmado: Tiger Lake-U i7-1195G7 (FamÃ­lia 6, Modelo 0x8C)"
+                : _cpuGateReason is not null ? "RECUSADO â€” " + _cpuGateReason : "Pendente â€” aguardando identificaÃ§Ã£o";
+            target.ForeColor = _cpu is { UnsupportedReason: null } ? Color.FromArgb(0, 100, 0) : Color.FromArgb(140, 20, 20);
+        }
+    }
+
+    private static bool TryParseHex(string? text, out ulong value)
+    {
+        value = 0;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        var clean = text.Trim();
+        if (clean.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            clean = clean[2..];
+        }
+
+        clean = clean.Replace(" ", string.Empty).Replace("_", string.Empty);
+        return clean.Length is >= 1 and <= 16
+            && ulong.TryParse(clean, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out value);
+    }
+
+    private void OnManualDecode(object? sender, EventArgs e)
+    {
+        if (!TryParseHex(_txtHexInput.Text, out var value))
+        {
+            MessageBox.Show(this, "Valor hexadecimal invÃ¡lido. Informe de 1 a 16 dÃ­gitos hexadecimais (opcional prefixo 0x).",
+                "Teste manual", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("VALOR FORNECIDO MANUALMENTE â€” SIMULADO (nÃ£o Ã© leitura de hardware)");
+        sb.AppendLine();
+        AppendRegisterDecoding(sb, value);
+
+        _txtManualResult.Text = sb.ToString();
+    }
+
+    private void AppendRegisterDecoding(StringBuilder sb, ulong value)
+    {
+        var address = MsrAddress.All[Math.Max(0, _cmbManualMsr.SelectedIndex)];
+
+        sb.AppendLine($"{MsrAddress.Name(address)} (0x{address:X})");
+        sb.AppendLine("Hex: " + Bits.Hex16(value));
+        sb.AppendLine("Bin: " + Bits.Bin64(value));
+        sb.AppendLine("Dec: " + value);
+        sb.AppendLine("Escopo: " + MsrAddress.Scope(address));
+        sb.AppendLine();
+        sb.AppendLine("Campos decodificados (mÃ¡scara Â· valor bruto Â· significado Â· citaÃ§Ã£o):");
+
+        IReadOnlyList<DecodedField> fields = address switch
+        {
+            MsrAddress.TemperatureTarget => TemperatureTargetDecoding.Decode(value).Fields,
+            MsrAddress.ThermStatus => ThermStatusDecoding.Decode(value, tjMaxC: null).Fields,
+            MsrAddress.PackageThermStatus => PackageThermStatusDecoding.Decode(value, tjMaxC: null).Fields,
+            _ => Array.Empty<DecodedField>(),
+        };
+
+        foreach (var field in fields)
+        {
+            sb.AppendLine($"  {field.Bits,-9} {field.Name} = {field.RawValue} (0x{field.RawValue:X})  [{field.Kind}]");
+            sb.AppendLine($"      mÃ¡scara: 0x{field.Mask:X16}; acesso: {field.Access}");
+            sb.AppendLine($"      {field.Meaning}");
+            sb.AppendLine($"      Fonte: {field.Citation}");
+            if (field.Note is not null)
+            {
+                sb.AppendLine($"      Nota: {field.Note}");
+            }
+
+            sb.AppendLine();
+        }
+
+        if (address == MsrAddress.TemperatureTarget)
+        {
+            var decoded = TemperatureTargetDecoding.Decode(value);
+            sb.AppendLine($"TjMAX: {decoded.TjMaxC} Â°C");
+            sb.AppendLine($"TCC Activation Offset ([29:24], datasheet TGL): {decoded.OffsetTgl} Â°C");
+            sb.AppendLine($"TCC Activation Offset ([27:24], SDM genÃ©rico): {decoded.OffsetSdm} Â°C"
+                        + (decoded.OffsetDivergent ? "  â€” DIVERGÃŠNCIA ENTRE MÃSCARAS" : string.Empty));
+            sb.AppendLine($"Tau (bruto, sem conversÃ£o): {decoded.TauRaw}");
+            sb.AppendLine($"Temperatura-alvo mÃ©dia: {decoded.AverageTargetC} Â°C");
+            sb.AppendLine();
+            sb.AppendLine("LimitaÃ§Ãµes: " + UiTexts.TauLimitation);
+        }
+    }
+
+    private void OnManualApply(object? sender, EventArgs e)
+    {
+        if (!TryParseHex(_txtHexInput.Text, out var value))
+        {
+            MessageBox.Show(this, "Valor hexadecimal invÃ¡lido. Informe de 1 a 16 dÃ­gitos hexadecimais (opcional prefixo 0x).",
+                "Teste manual", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (_cmbMechanism.SelectedIndex != 1)
+        {
+            _cmbMechanism.SelectedIndex = 1; // dispara OnMechanismChanged
+        }
+
+        var address = MsrAddress.All[Math.Max(0, _cmbManualMsr.SelectedIndex)];
+        _manual.SetValueForAll(address, _logicalProcessors.Select(p => p.Number), value);
+        _ = Task.Run(async () =>
+        {
+            await RunSamplingAsync();
+        });
+    }
+
+    // --------------------------------------------------------------- aba 6: auditoria
+
+    private TabPage BuildTabAudit()
+    {
+        var page = new TabPage("Auditoria das leituras");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var info = new Label
+        {
+            Text = "Registro por leitura: processador lÃ³gico Â· endereÃ§o do MSR Â· valor bruto Â· data/hora Â· resultado Â· erro. "
+                 + "O log Ã© apenas para acrÃ©scimo (nunca limpo). Leituras simuladas sÃ£o marcadas.",
+            AutoSize = true,
+            MaximumSize = new Size(1150, 0),
+        };
+        layout.Controls.Add(info, 0, 0);
+
+        _gridAudit = MakeGrid(
+            ("quando", "Data/hora (UTC)", 150),
+            ("grupo", "Grupo", 60),
+            ("lp", "Proc. lÃ³gico", 90),
+            ("msr", "MSR", 90),
+            ("nome", "Registrador", 300),
+            ("mecanismo", "Mecanismo", 220),
+            ("status", "Resultado", 90),
+            ("hex", "Valor bruto (hex)", 190),
+            ("erro", "Erro", 330),
+            ("sim", "Simulado", 80));
+        _gridAudit.Name = "grid-auditoria";
+        layout.Controls.Add(_gridAudit, 0, 1);
+
+        var actions = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Height = 46 };
+        _lblAuditCount = new Label { Text = "0 leituras registradas", AutoSize = true, Margin = new Padding(3, 8, 12, 0) };
+        _lblAuditCount.Name = "lbl-auditoria-contagem";
+        actions.Controls.Add(_lblAuditCount);
+
+        var btnCsv = new Button { Text = "Exportar CSV", Width = 140 };
+        btnCsv.Name = "btn-exportar-csv";
+        btnCsv.Click += (_, _) => ExportAudit(ExportFormat.Csv);
+        actions.Controls.Add(btnCsv);
+
+        var btnJson = new Button { Text = "Exportar JSON", Width = 150 };
+        btnJson.Name = "btn-exportar-json";
+        btnJson.Click += (_, _) => ExportAudit(ExportFormat.Json);
+        actions.Controls.Add(btnJson);
+
+        var btnNdjson = new Button { Text = "Exportar NDJSON", Width = 160 };
+        btnNdjson.Name = "btn-exportar-ndjson";
+        btnNdjson.Click += (_, _) => ExportAudit(ExportFormat.Ndjson);
+        actions.Controls.Add(btnNdjson);
+
+        layout.Controls.Add(actions, 0, 2);
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    private enum ExportFormat
+    {
+        Csv,
+        Json,
+        Ndjson,
+    }
+
+    private void ExportAudit(ExportFormat format)
+    {
+        try
+        {
+            var records = _audit.Snapshot();
+            if (records.Count == 0)
+            {
+                MessageBox.Show(this, "Nenhuma leitura registrada ainda.", "Exportar", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = format switch
+                {
+                    ExportFormat.Csv => "CSV (*.csv)|*.csv",
+                    ExportFormat.Json => "JSON (*.json)|*.json",
+                    _ => "NDJSON (*.ndjson)|*.ndjson",
+                },
+                FileName = format switch
+                {
+                    ExportFormat.Csv => "auditoria-msr.csv",
+                    ExportFormat.Json => "diagnostico-msr.json",
+                    _ => "auditoria-msr.ndjson",
+                },
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            var content = format switch
+            {
+                ExportFormat.Csv => ExportService.AuditCsv(records),
+                ExportFormat.Json => ExportService.DiagnosticsJson(records, _engine.TransitionLog,
+                    _engine.Reader.MechanismName, _engine.Reader.IsSimulated, _engine.LastSample?.Notes ?? Array.Empty<string>()),
+                _ => ExportService.Ndjson(records),
+            };
+
+            File.WriteAllText(dialog.FileName, content, Encoding.UTF8);
+            MessageBox.Show(this, "ExportaÃ§Ã£o concluÃ­da: " + dialog.FileName, "Exportar",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, "NÃ£o disponÃ­vel â€” falha na exportaÃ§Ã£o: " + ex.Message, "Exportar",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    // --------------------------------------------------------------- aba 7: comparacao
+
+    private TabPage BuildTabComparison()
+    {
+        var page = new TabPage("ComparaÃ§Ã£o ThrottleStop (antes/depois)");
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(8) };
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var instructions = new Label
+        {
+            Text = "Procedimento (requisito 14.1-B): 1) feche o ThrottleStop; 2) reinicie o Windows; 3) aqui, clique em "
+                 + "\"Registrar linha de base (ANTES)\"; 4) inicie o ThrottleStop sem alterar configuraÃ§Ãµes; 5) aqui, clique em "
+                 + "\"Comparar agora (DEPOIS)\". O aplicativo nunca escreve nos registradores nem altera configuraÃ§Ãµes do "
+                 + "ThrottleStop. A comparaÃ§Ã£o registra diferenÃ§as, mas NÃƒO prova causalidade.",
+            AutoSize = true,
+            MaximumSize = new Size(1150, 0),
+        };
+        layout.Controls.Add(instructions, 0, 0);
+
+        _gridComparison = MakeGrid(
+            ("msr", "MSR", 90),
+            ("nome", "Registrador", 330),
+            ("lp", "Proc. lÃ³gico (-1 = pacote)", 160),
+            ("antes", "ANTES (hex)", 200),
+            ("depois", "DEPOIS (hex)", 200),
+            ("mudou", "Mudou", 80));
+        _gridComparison.Name = "grid-comparacao";
+        layout.Controls.Add(_gridComparison, 0, 1);
+
+        _lblComparisonInfo = new Label { Text = "Linha de base: â€”", AutoSize = true };
+        _lblComparisonInfo.Name = "lbl-comparacao-info";
+        layout.Controls.Add(_lblComparisonInfo, 0, 2);
+
+        var actions = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, AutoSize = true };
+        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Height = 46 };
+        var btnBaseline = new Button { Text = "Registrar linha de base (ANTES)", Width = 260 };
+        btnBaseline.Name = "btn-baseline-antes";
+        btnBaseline.Click += async (_, _) =>
+        {
+            await RunSamplingAsync();
+            if (_engine.LastSample is not null)
+            {
+                _baseline = ThrottleStopComparison.FromSample(_engine.LastSample, "ANTES");
+                _lblComparisonInfo.Text = $"Linha de base registrada em {_baseline.TimestampUtc:HH:mm:ss} UTC "
+                                        + (_baseline.Simulated ? " (MODO SIMULADO)" : string.Empty)
+                                        + ". Inicie o ThrottleStop e clique em \"Comparar agora (DEPOIS)\".";
+            }
+        };
+        buttons.Controls.Add(btnBaseline);
+
+        var btnCompare = new Button { Text = "Comparar agora (DEPOIS)", Width = 230 };
+        btnCompare.Name = "btn-comparar-depois";
+        btnCompare.Click += async (_, _) =>
+        {
+            if (_baseline is null)
+            {
+                MessageBox.Show(this, "Registre primeiro a linha de base (ANTES).", "ComparaÃ§Ã£o",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            await RunSamplingAsync();
+            if (_engine.LastSample is null)
+            {
+                return;
+            }
+
+            var after = ThrottleStopComparison.FromSample(_engine.LastSample, "DEPOIS");
+            var report = ThrottleStopComparison.Compare(_baseline, after);
+            FillComparisonGrid(report);
+            _lblComparisonInfo.Text = $"ComparaÃ§Ã£o concluÃ­da em {report.ComparedAtUtc:HH:mm:ss} UTC "
+                                    + (report.Simulated ? " (MODO SIMULADO â€” valores nÃ£o sÃ£o leituras reais)" : string.Empty);
+        };
+        buttons.Controls.Add(btnCompare);
+        actions.Controls.Add(buttons);
+
+        var disclaimer = new Label
+        {
+            Text = UiTexts.ComparisonDisclaimer,
+            AutoSize = true,
+            MaximumSize = new Size(1150, 0),
+            ForeColor = Color.FromArgb(90, 60, 0),
+        };
+        actions.Controls.Add(disclaimer);
+        layout.Controls.Add(actions, 0, 3);
+
+        page.Controls.Add(layout);
+        return page;
+    }
+
+    private void FillComparisonGrid(ComparisonReport report)
+    {
+        _gridComparison.Rows.Clear();
+        foreach (var entry in report.Entries)
+        {
+            _gridComparison.Rows.Add(
+                $"0x{entry.MsrAddress:X}",
+                entry.MsrName,
+                entry.ProcessorNumber < 0 ? "Pacote" : entry.ProcessorNumber.ToString(),
+                entry.BeforeHex,
+                entry.AfterHex,
+                entry.Changed ? "SIM" : "nÃ£o");
+        }
+    }
+
+    // --------------------------------------------------------------- aba 8: seguranca
+
+    private TabPage BuildTabSecurity()
+    {
+        var page = new TabPage("SeguranÃ§a");
+        var text = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            ReadOnly = true,
+            Font = new Font("Segoe UI", 9.5F),
+            BackColor = Color.FromArgb(248, 248, 252),
+        };
+        text.Name = "txt-seguranca";
+        page.Controls.Add(text);
+        return page;
+    }
+
+    private void FillSecurityTab()
+    {
+        var text = Controls.Find("txt-seguranca", true).FirstOrDefault() as RichTextBox;
+        if (text is null)
+        {
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("POLÃTICA DE SEGURANÃ‡A â€” SOMENTE LEITURA (requisito 8 do escopo)");
+        sb.AppendLine();
+        sb.AppendLine("OperaÃ§Ãµes permitidas: leitura (RDMSR conceitual) dos MSRs 0x1A2, 0x19C e 0x1B1.");
+        sb.AppendLine("OperaÃ§Ãµes proibidas e NÃƒO IMPLEMENTADAS: WRMSR; escrita em MSR/MMIO/PCI Config/memÃ³ria fÃ­sica;");
+        sb.AppendLine("alteraÃ§Ã£o de PL1/PL2, PP0/PP1, PROCHOT, TCC Offset, tensÃµes ou limites de potÃªncia;");
+        sb.AppendLine("alteraÃ§Ã£o de configuraÃ§Ãµes do Windows (bcdedit/Secure Boot/VBS/HVCI/Integridade da MemÃ³ria/TESTSIGNING).");
+        sb.AppendLine();
+        sb.AppendLine("Estado atual (Fase 1): nenhum driver instalado, nenhuma alteraÃ§Ã£o no sistema realizada.");
+        sb.AppendLine("A Fase 2 (driver somente-leitura) depende de revisÃ£o tÃ©cnica e autorizaÃ§Ã£o explÃ­cita.");
+        sb.AppendLine();
+        sb.AppendLine("Auto-verificaÃ§Ãµes estruturais:");
+        foreach (var (assertion, evidence) in ReadPolicy.SelfCheck())
+        {
+            sb.AppendLine("â€¢ " + assertion);
+            sb.AppendLine("    " + evidence);
+        }
+
+        text.Text = sb.ToString();
+    }
+
+    // ------------------------------------------------------------------ amostragem
+
+    private void OnToggleAuto(object? sender, EventArgs e)
+    {
+        if (_sampleTimer.Enabled)
+        {
+            _sampleTimer.Stop();
+            _btnToggleAuto.Text = "Iniciar amostragem automÃ¡tica";
+            return;
+        }
+
+        _sampleTimer.Interval = (int)_numInterval.Value * 1000;
+        _sampleTimer.Start();
+        _btnToggleAuto.Text = "Pausar amostragem";
+        _ = RunSamplingAsync();
+    }
+
+    private async Task RunSamplingAsync()
+    {
+        if (_samplingBusy)
+        {
+            return;
+        }
+
+        if (_cpuGateReason is not null)
+        {
+            _lblLastUpdate.Text = "Leituras recusadas: " + _cpuGateReason;
+            MessageBox.Show(this,
+                "Leituras recusadas â€” hardware nÃ£o compatÃ­vel com o alvo do projeto." + Environment.NewLine
+                + Environment.NewLine + _cpuGateReason,
+                "IdentificaÃ§Ã£o do hardware", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        _samplingBusy = true;
+        try
+        {
+            var snapshot = await Task.Run(_engine.CaptureSample);
+            UpdateFromSample(snapshot);
+        }
+        catch (Exception ex)
+        {
+            _lblLastUpdate.Text = "Falha na amostragem: " + ex.Message;
+        }
+        finally
+        {
+            _samplingBusy = false;
+        }
+    }
+
+    private void UpdateFromSample(SampleSnapshot snapshot)
+    {
+        var local = snapshot.TimestampUtc.ToLocalTime();
+        _lblLastUpdate.Text = $"Ãšltima amostragem: {local:HH:mm:ss} ({snapshot.TimestampUtc:HH:mm:ss} UTC) â€” "
+                            + $"mecanismo: {snapshot.MechanismName}" + (snapshot.Simulated ? " [SIMULADO]" : string.Empty);
+
+        UpdateTargetTab(snapshot);
+        UpdateThermalTab(snapshot);
+        RefreshRegisterGrid();
+        RefreshAuditGrid();
+    }
+
+    private static string Nda(string? reason) => reason is null
+        ? "NÃ£o disponÃ­vel"
+        : "NÃ£o disponÃ­vel â€” " + reason;
+
+    private void UpdateTargetTab(SampleSnapshot snapshot)
+    {
+        var decoded = snapshot.TemperatureTarget;
+        if (decoded is null)
+        {
+            var reason = snapshot.TemperatureTargetReadings.FirstOrDefault()?.ErrorMessage
+                         ?? "nenhuma amostragem realizada";
+            _lblTargetHex.Text = Nda(reason);
+            _lblTargetBin.Text = Nda(reason);
+            _lblTargetDec.Text = Nda(reason);
+            _lblTjMax.Text = Nda(reason);
+            _lblOffsetTgl.Text = Nda(reason);
+            _lblOffsetSdm.Text = Nda(reason);
+            _lblTau.Text = Nda(reason);
+            _lblAvg.Text = Nda(reason);
+            _gridTargetLp.Rows.Clear();
+            _txtTargetNotes.Text = UiTexts.OffsetNote + Environment.NewLine + UiTexts.TauLimitation;
+            return;
+        }
+
+        _lblTargetHex.Text = Bits.Hex16(decoded.Raw);
+        _lblTargetBin.Text = Bits.Bin64(decoded.Raw);
+        _lblTargetDec.Text = decoded.Raw.ToString();
+        _lblTjMax.Text = $"{decoded.TjMaxC} Â°C (lido de [23:16]; nÃ£o presumido)";
+        _lblOffsetTgl.Text = $"{decoded.OffsetTgl} Â°C";
+        _lblOffsetSdm.Text = $"{decoded.OffsetSdm} Â°C" + (decoded.OffsetDivergent ? "  â€” DIVERGÃŠNCIA ENTRE AS MÃSCARAS" : string.Empty);
+        _lblTau.Text = $"{decoded.TauRaw} (valor bruto â€” sem conversÃ£o documentada para segundos)";
+        _lblAvg.Text = $"{decoded.AverageTargetC} Â°C";
+
+        _gridTargetLp.Rows.Clear();
+        for (var i = 0; i < snapshot.TemperatureTargetReadings.Count; i++)
+        {
+            var reading = snapshot.TemperatureTargetReadings[i];
+            var lp = i < snapshot.CoreReadings.Count ? snapshot.CoreReadings[i].ProcessorNumber : i;
+            if (reading.Success)
+            {
+                var perLp = TemperatureTargetDecoding.Decode(reading.Value);
+                _gridTargetLp.Rows.Add(lp.ToString(), reading.ValueHex, perLp.TjMaxC.ToString(), perLp.OffsetTgl.ToString(), perLp.TauRaw.ToString());
+            }
+            else
+            {
+                _gridTargetLp.Rows.Add(lp.ToString(), "NÃ£o disponÃ­vel", "â€”", "â€”", "â€”");
+            }
+        }
+
+        var notes = new StringBuilder();
+        notes.AppendLine(UiTexts.OffsetNote);
+        notes.AppendLine();
+        notes.AppendLine(UiTexts.TauLimitation);
+        notes.AppendLine();
+        notes.AppendLine("O TCC Activation Offset nÃ£o substitui o TjMAX: o controle tÃ©rmico tambÃ©m atua no limite crÃ­tico "
+                       + "documentado pelo fabricante. Elevar o offset nÃ£o resolve a causa do aquecimento.");
+        foreach (var note in snapshot.Notes)
+        {
+            notes.AppendLine();
+            notes.AppendLine("â€¢ " + note);
+        }
+
+        _txtTargetNotes.Text = notes.ToString();
+    }
+
+    private void UpdateThermalTab(SampleSnapshot snapshot)
+    {
+        _lblThermalTime.Text = $"Ãšltima leitura: {snapshot.TimestampUtc.ToLocalTime():HH:mm:ss} ({snapshot.TimestampUtc:HH:mm:ss} UTC)"
+                             + (snapshot.Simulated ? " [SIMULADO]" : string.Empty);
+
+        _gridCore.Rows.Clear();
+        foreach (var reading in snapshot.CoreReadings)
+        {
+            var d = reading.Decoded;
+            _gridCore.Rows.Add(
+                reading.ProcessorNumber.ToString(),
+                d?.TemperatureC is { } temp ? temp + " Â°C" : Nda(d is null ? reading.Result.ErrorMessage ?? "leitura invÃ¡lida" : "leitura invÃ¡lida (Reading Valid = 0)"),
+                d is null ? "â€”" : d.DigitalReadout.ToString(),
+                d is null ? "â€”" : (d.ThermalStatus ? "ATIVO" : "inativo"),
+                d is null ? "â€”" : (d.ThermalStatusLog ? "REGISTRADO (histÃ³rico)" : "nÃ£o registrado"),
+                d is null ? "â€”" : (d.ProchotEvent ? "ASSERTIDO POR COMPONENTE EXTERNO" : "inativo"),
+                d is null ? "â€”" : (d.ProchotLog ? "REGISTRADO (histÃ³rico)" : "nÃ£o registrado"),
+                d is null ? "â€”" : $"{(d.CriticalTempStatus ? "ATIVO" : "inativo")}/{(d.CriticalTempLog ? "registrado" : "nÃ£o")}",
+                d is null ? "â€”" : $"{(d.PowerLimitStatus ? "ATIVO" : "inativo")}/{(d.PowerLimitLog ? "registrado" : "nÃ£o")}");
+        }
+
+        var pkg = snapshot.Package;
+        if (pkg is null)
+        {
+            var reason = snapshot.PackageReadings.FirstOrDefault()?.Result.ErrorMessage ?? "nenhuma amostragem realizada";
+            _lblPackageSummary.Text = "Pacote (0x1B1): " + Nda(reason);
+            _lblProchot.Text = "PROCHOT: " + Nda(reason);
+        }
+        else
+        {
+            _lblPackageSummary.Text =
+                "Pacote (0x1B1): thermal status " + (pkg.ThermalStatus ? "ATIVO" : "inativo")
+                + " Â· log " + (pkg.ThermalStatusLog ? "REGISTRADO (histÃ³rico)" : "nÃ£o registrado")
+                + " Â· PROCHOT externo " + (pkg.ProchotEvent ? "ATIVO" : "inativo")
+                + " Â· PROCHOT log " + (pkg.ProchotLog ? "REGISTRADO" : "nÃ£o registrado")
+                + " Â· temperatura " + (pkg.TemperatureC is { } pt ? pt + " Â°C" : "NÃ£o disponÃ­vel")
+                + " Â· leitura vÃ¡lida " + (snapshot.PackageReadings.All(r => r.Result.Success) ? "sim" : "parcial");
+
+            var firstCore = snapshot.CoreReadings.FirstOrDefault(r => r.Decoded is not null)?.Decoded
+                            ?? ThermStatusDecoding.Decode(0, tjMaxC: null);
+            var assessment = ProchotAssessment.Assess(firstCore, pkg);
+            _lblProchot.Text = $"PROCHOT â€” {assessment.Classification}. {assessment.Detail} {assessment.Caveat}";
+        }
+
+        _gridEvents.Rows.Clear();
+        foreach (var transition in _engine.TransitionLog.AsEnumerable().Reverse())
+        {
+            _gridEvents.Rows.Add(
+                transition.DetectedAtUtc.ToString("HH:mm:ss"),
+                $"0x{transition.MsrAddress:X}",
+                transition.Scope,
+                transition.Indicator,
+                transition.Kind,
+                transition.From,
+                transition.To,
+                transition.HonestTimestampNote);
+        }
+    }
+
+    private void RefreshRegisterGrid()
+    {
+        var snapshot = _engine.LastSample;
+        if (snapshot is null)
+        {
+            if (_gridRegisters.Rows.Count == 0)
+            {
+                foreach (var address in MsrAddress.All)
+                {
+                    _gridRegisters.Rows.Add(MsrAddress.Name(address), $"0x{address:X}", "NÃ£o disponÃ­vel", "â€”", "â€”");
+                }
+            }
+
+            return;
+        }
+
+        var lp = (int)_numRegisterLp.Value;
+        var core = snapshot.CoreReadings.FirstOrDefault(r => r.ProcessorNumber == lp);
+        var target = snapshot.TemperatureTargetReadings.Count > lp
+            ? snapshot.TemperatureTargetReadings[lp]
+            : null;
+        var package = snapshot.PackageReadings.FirstOrDefault(r => r.Result.Success)?.Result;
+
+        _gridRegisters.Rows.Clear();
+
+        void AddRow(int address, MsrReadResult? result)
+        {
+            if (result is { Success: true })
+            {
+                _gridRegisters.Rows.Add(
+                    MsrAddress.Name(address),
+                    $"0x{address:X}",
+                    result.ValueHex,
+                    Bits.Bin64(result.Value),
+                    result.Value.ToString());
+            }
+            else
+            {
+                _gridRegisters.Rows.Add(
+                    MsrAddress.Name(address),
+                    $"0x{address:X}",
+                    Nda(result?.ErrorMessage ?? "nenhuma amostragem"),
+                    "â€”",
+                    "â€”");
+            }
+        }
+
+        AddRow(MsrAddress.TemperatureTarget, target);
+        AddRow(MsrAddress.ThermStatus, core?.Result);
+        AddRow(MsrAddress.PackageThermStatus, package); // escopo: pacote (mesmo valor em qualquer LP)
+    }
+
+    private void RefreshAuditGrid()
+    {
+        var records = _audit.Snapshot();
+        _gridAudit.Rows.Clear();
+        foreach (var record in records)
+        {
+            _gridAudit.Rows.Add(
+                record.TimestampUtc.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                record.ProcessorGroup.ToString(),
+                record.ProcessorNumber.ToString(),
+                $"0x{record.MsrAddress:X}",
+                record.MsrName,
+                record.Mechanism,
+                record.Status,
+                record.RawHex ?? "â€”",
+                record.Error ?? "â€”",
+                record.Simulated ? "SIM" : "nÃ£o");
+        }
+
+        _lblAuditCount.Text = records.Count + " leituras registradas (log apenas para acrÃ©scimo)";
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\Program.cs ==========
+
+namespace IrisXe.Thermal.App;
+
+internal static class Program
+{
+    [STAThread]
+    private static void Main()
+    {
+        ApplicationConfiguration.Initialize();
+        Application.Run(new MainForm());
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs ==========
+
+using IrisXe.Thermal.Core.Diagnostics;
+
+namespace IrisXe.Thermal.App;
+
+/// <summary>
+/// Textos fixos da interface (PT-BR). Centralizados para revisao tecnica facil.
+/// </summary>
+internal static class UiTexts
+{
+    public const string AppTitle = "IRIS XE THERMAL MSR READER â€” DiagnÃ³stico tÃ©rmico (somente leitura)";
+
+    public const string ReadOnlyBanner =
+        "MODO SOMENTE LEITURA â€” este aplicativo nÃ£o executa WRMSR, nÃ£o escreve em registradores, "
+        + "nÃ£o altera PL1/PL2, PROCHOT, TCC Offset, tensÃµes ou qualquer configuraÃ§Ã£o de hardware ou do Windows.";
+
+    public const string Phase1Banner =
+        "FASE 1 (sem driver): nÃ£o hÃ¡ leitura real de MSR instalada. Campos dependentes de MSR exibem "
+        + "\"NÃ£o disponÃ­vel â€” motivo\". Use a aba \"Teste manual\" para exercitar a decodificaÃ§Ã£o com valores "
+        + "fornecidos manualmente â€” eles sÃ£o SEMPRE rotulados como SIMULADOS e nunca sÃ£o apresentados como leituras.";
+
+    public const string SimulatedBanner =
+        "MODO SIMULADO â€” os valores exibidos foram fornecidos manualmente e NÃƒO sÃ£o leituras do hardware. "
+        + "Toda linha do log de auditoria tambÃ©m estÃ¡ marcada como simulada.";
+
+    public const string TauLimitation =
+        "LimitaÃ§Ã£o declarada: a conversÃ£o do valor bruto de Tau para segundos nÃ£o Ã© documentada para o mecanismo "
+        + "de TCC do Tiger Lake. O valor Ã© exibido em bruto. NÃ£o confundir com o Tau do Turbo Boost.";
+
+    public const string OffsetNote =
+        "Duas mÃ¡scaras existem para o TCC Activation Offset: [29:24] conforme o datasheet Tiger Lake (631121-012, "
+        + "Â§4.1.3.1.1) â€” fonte usada â€” e [27:24] conforme o SDM Vol. 4 genÃ©rico, exibido para conferÃªncia. "
+        + "Qualquer divergÃªncia entre as duas Ã© sinalizada.";
+
+    public const string ProchotNote =
+        "O sinal PROCHOT# pode operar como entrada, saÃ­da ou bidirecional (datasheet TGL Â§4.1.3.3; entrada Ã© o "
+        + "padrÃ£o documentado). Quando apenas os bits de LOG estÃ£o setados, a origem (evento tÃ©rmico interno x "
+        + "solicitaÃ§Ã£o externa) NÃƒO pode ser confirmada por esta leitura â€” o aplicativo declara a limitaÃ§Ã£o em "
+        + "vez de atribuir causa.";
+
+    public const string ComparisonDisclaimer = ComparisonReport.Disclaimer;
+
+    public const string HistoricalBitsNote =
+        "Bits de LOG (histÃ³ricos) sÃ£o R/WC0: apenas uma ESCRITA de 0 por software os limpa. A leitura (RDMSR) nÃ£o "
+        + "os limpa e este aplicativo nunca escreve nos registradores. Nota: outras ferramentas (inclusive o prÃ³prio "
+        + "ThrottleStop, dependendo da operaÃ§Ã£o) podem ter limpo esses bits antes â€” por isso todo evento tambÃ©m Ã© "
+        + "registrado no log de software, com horÃ¡rio da amostragem em que foi observado.";
+
+    public const string SamplingHonestyNote =
+        "Se um indicador permanece ativo entre duas leituras, a interface mostra que ele estÃ¡ ativo na Ãºltima "
+        + "amostragem. O inÃ­cio real de um evento nÃ£o pode ser determinado com precisÃ£o dentro do intervalo de "
+        + "amostragem â€” os horÃ¡rios exibidos sÃ£o os da detecÃ§Ã£o.";
+
+    public const string CpuIdNote =
+        "A assinatura (famÃ­lia/modelo/stepping) Ã© lida da cadeia 'Identifier' do registro do Windows "
+        + "(HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor), derivada pelo prÃ³prio sistema operacional da "
+        + "instruÃ§Ã£o CPUID no boot â€” equivale a CPUID.1:EAX sem executar cÃ³digo nativo de usuÃ¡rio. O nome comercial "
+        + "vem de 'ProcessorNameString'.";
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\IrisXe.Thermal.Core.csproj ==========
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IrisXe.Thermal.Core</RootNamespace>
+    <!-- Projeto intencionalmente SEM dependÃªncias e SEM acesso a hardware.
+         Toda a decodificaÃ§Ã£o de MSR Ã© funÃ§Ã£o pura sobre valores de 64 bits. -->
+    <Description>IRIS XE THERMAL MSR READER - nucleo puro (decodificadores documentados, politica de leitura somente-leitura, motor de diagnostico e exportacao). Fase 1, sem driver.</Description>
+  </PropertyGroup>
+
+</Project>
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\MsrAddress.cs ==========
+
+namespace IrisXe.Thermal.Core;
+
+/// <summary>
+/// Enderecos dos tres unicos MSRs autorizados para leitura neste projeto.
+/// Qualquer outro endereco e recusado pela <see cref="Security.ReadPolicy"/>,
+/// inclusive nos modos de teste manual. (Requisito 8.1 e 15.4 do escopo.)
+/// </summary>
+public static class MsrAddress
+{
+    /// <summary>MSR_TEMPERATURE_TARGET (IA32_TEMPERATURE_TARGET).</summary>
+    public const int TemperatureTarget = 0x1A2;
+
+    /// <summary>IA32_THERM_STATUS â€” indicadores termicos por processador logico.</summary>
+    public const int ThermStatus = 0x19C;
+
+    /// <summary>MSR_PACKAGE_THERM_STATUS â€” indicadores termicos do pacote.</summary>
+    public const int PackageThermStatus = 0x1B1;
+
+    /// <summary>Lista fechada de enderecos autorizados.</summary>
+    public static readonly IReadOnlyList<int> All = new[] { TemperatureTarget, ThermStatus, PackageThermStatus };
+
+    public static bool IsAuthorized(int address) => All.Contains(address);
+
+    public static string Name(int address) => address switch
+    {
+        TemperatureTarget => "MSR_TEMPERATURE_TARGET (IA32_TEMPERATURE_TARGET)",
+        ThermStatus => "IA32_THERM_STATUS",
+        PackageThermStatus => "MSR_PACKAGE_THERM_STATUS",
+        _ => $"MSR 0x{address:X} (nao autorizado)",
+    };
+
+    /// <summary>Escopo documentado de cada registrador (SDM Vol. 4).</summary>
+    public static string Scope(int address) => address switch
+    {
+        TemperatureTarget => "Por processador logico (SDM Vol. 4). Os valores sao calibrados em fabrica; "
+                           + "divergencias entre processadores logicos NAO sao descartadas â€” sao reportadas.",
+        ThermStatus => "Por processador logico (SDM Vol. 4). A leitura e realizada em cada processador logico.",
+        PackageThermStatus => "Por pacote (SDM Vol. 4). A leitura e repetida em todos os processadores logicos "
+                            + "apenas para conferencia de consistencia.",
+        _ => "â€”",
+    };
+
+    public static string Hex(int address) => $"0x{address:X}";
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\IMsrReader.cs ==========
+
+namespace IrisXe.Thermal.Core.Access;
+
+/// <summary>Resultado de uma tentativa de leitura de MSR.</summary>
+public sealed record MsrReadResult
+{
+    public required bool Success { get; init; }
+
+    public required ulong Value { get; init; }
+
+    /// <summary>Motivo da falha, em portugues, quando Success = false.</summary>
+    public string? ErrorMessage { get; init; }
+
+    /// <summary>Codigo Win32 associado, quando aplicavel (ex.: 5 = Acesso Negado).</summary>
+    public int? Win32Error { get; init; }
+
+    /// <summary>Verdadeiro quando o valor NAO veio do hardware (modo de teste manual).</summary>
+    public required bool Simulated { get; init; }
+
+    public DateTime TimestampUtc { get; init; } = DateTime.UtcNow;
+
+    public static MsrReadResult Ok(ulong value, bool simulated = false) => new()
+    { Success = true, Value = value, Simulated = simulated };
+
+    public static MsrReadResult Fail(string message, int? win32Error = null) => new()
+    { Success = false, Value = 0, ErrorMessage = message, Win32Error = win32Error, Simulated = false };
+
+    public string ValueHex => $"0x{Value:X16}";
+}
+
+/// <summary>
+/// Contrato do mecanismo de acesso a MSR. POR CONSTRUCAO, a interface nao declara nenhuma
+/// operacao de escrita â€” e a garantia estrutural central do projeto (requisito 8.1/8.4):
+/// o compilador torna impossivel ao restante do codigo invocar um WRMSR, pois nao existe
+/// membro para isso.
+///
+/// Implementacoes previstas:
+///   - Fase 1: <see cref="UnavailableMsrReader"/> (sem driver instalado) e
+///     <see cref="ManualMsrReader"/> (valores manuais de teste, sempre rotulados como simulados).
+///   - Fase 2: leitor sobre o driver proprio somente-leitura, apos revisao e autorizacao.
+/// </summary>
+public interface IMsrReader
+{
+    /// <summary>Nome do mecanismo exibido na interface (estado do mecanismo de leitura).</summary>
+    string MechanismName { get; }
+
+    /// <summary>Verdadeiro quando os valores NAO vem do hardware (teste manual).</summary>
+    bool IsSimulated { get; }
+
+    /// <summary>Verdadeiro quando o mecanismo consegue realizar leituras reais.</summary>
+    bool IsAvailable { get; }
+
+    /// <summary>Descricao do estado/limitacao atual do mecanismo, para exibicao.</summary>
+    string StatusDescription { get; }
+
+    /// <summary>
+    /// Le um MSR em um processador logico especifico (grupo, numero). Recusa enderecos fora
+    /// da lista autorizada (<see cref="Security.ReadPolicy"/>) sem tocar no hardware.
+    /// </summary>
+    MsrReadResult Read(int processorGroup, int processorNumber, int msrAddress);
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\ManualMsrReader.cs ==========
+
+namespace IrisXe.Thermal.Core.Access;
+
+/// <summary>
+/// Mecanismo de teste da FASE 1: entrega valores fornecidos MANUALMENTE pelo usuario
+/// (por exemplo, capturados de outras ferramentas) para exercitar decodificacao,
+/// motor de diagnostico e exportacao SEM hardware.
+///
+/// REGRA ABSOLUTA: todo resultado carrega Simulated = true e o mecanismo se identifica
+/// como SIMULADO em todas as telas e no log de auditoria. Nunca e apresentado como
+/// leitura real (requisito 12: "Nao apresentar valores simulados como se fossem leituras reais").
+/// Enderecos fora da lista autorizada continuam recusados.
+/// </summary>
+public sealed class ManualMsrReader : IMsrReader
+{
+    private readonly object _lock = new();
+    private readonly Dictionary<int, Dictionary<int, ulong>> _values = new(); // msr -> lp -> valor
+
+    public const string MechanismLabel = "Valores manuais (SIMULADO â€” nÃ£o Ã© leitura de hardware)";
+
+    public string MechanismName => MechanismLabel;
+
+    public bool IsSimulated => true;
+
+    public bool IsAvailable => false; // nÃ£o hÃ¡ acesso REAL ao hardware neste modo
+
+    public string StatusDescription =>
+        "Modo de teste: os valores foram fornecidos manualmente pelo usuÃ¡rio e sÃ£o marcados como SIMULADOS "
+        + "em toda a interface e no log de auditoria. Nenhum acesso ao processador Ã© realizado.";
+
+    public void SetValue(int msrAddress, int processorNumber, ulong value)
+    {
+        if (!Security.ReadPolicy.IsAllowed(msrAddress))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(msrAddress),
+                $"EndereÃ§o 0x{msrAddress:X} nÃ£o Ã© autorizado pelo projeto (permitidos: 0x1A2, 0x19C, 0x1B1).");
+        }
+
+        lock (_lock)
+        {
+            if (!_values.TryGetValue(msrAddress, out var perLp))
+            {
+                perLp = new Dictionary<int, ulong>();
+                _values[msrAddress] = perLp;
+            }
+
+            perLp[processorNumber] = value;
+        }
+    }
+
+    /// <summary>Aplica o mesmo valor a todos os processadores logicos informados.</summary>
+    public void SetValueForAll(int msrAddress, IEnumerable<int> processorNumbers, ulong value)
+    {
+        foreach (var lp in processorNumbers)
+        {
+            SetValue(msrAddress, lp, value);
+        }
+    }
+
+    public void ClearAll()
+    {
+        lock (_lock)
+        {
+            _values.Clear();
+        }
+    }
+
+    public MsrReadResult Read(int processorGroup, int processorNumber, int msrAddress)
+    {
+        if (!Security.ReadPolicy.IsAllowed(msrAddress))
+        {
+            return MsrReadResult.Fail(
+                $"EndereÃ§o 0x{msrAddress:X} nÃ£o estÃ¡ na lista autorizada do projeto (0x1A2, 0x19C, 0x1B1). Leitura recusada.",
+                87);
+        }
+
+        ulong? value;
+        lock (_lock)
+        {
+            value = _values.TryGetValue(msrAddress, out var perLp)
+                && perLp.TryGetValue(processorNumber, out var v) ? v : null;
+        }
+
+        return value is null
+            ? MsrReadResult.Fail(
+                $"NÃ£o disponÃ­vel â€” nenhum valor manual foi fornecido para o MSR 0x{msrAddress:X} no processador lÃ³gico {processorNumber}.",
+                234) // ERROR_MORE_DATA-like; motivo: ausÃªncia de valor de teste
+            : MsrReadResult.Ok(value.Value, simulated: true);
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\UnavailableMsrReader.cs ==========
+
+namespace IrisXe.Thermal.Core.Access;
+
+/// <summary>
+/// Mecanismo usado na FASE 1 (sem driver): nenhuma leitura real e possivel.
+/// Toda consulta retorna "Nao disponivel" com o motivo explicito â€” nunca um valor presumido
+/// (requisito 12: "Se algum dado nao puder ser obtido, apresentar claramente: Nao disponivel
+/// â€” motivo da falha").
+/// </summary>
+public sealed class UnavailableMsrReader : IMsrReader
+{
+    public const string DefaultReason =
+        "NÃ£o disponÃ­vel â€” nenhum mecanismo de leitura de MSR estÃ¡ instalado nesta fase. "
+        + "O aplicativo Fase 1 nÃ£o instala drivers nem altera configuraÃ§Ãµes do Windows "
+        + "(conforme autorizaÃ§Ã£o recebida). A leitura real serÃ¡ habilitada apenas na Fase 2, "
+        + "com o driver somente-leitura revisado e autorizado.";
+
+    public string MechanismName => "IndisponÃ­vel (Fase 1 â€” sem driver)";
+
+    public bool IsSimulated => false;
+
+    public bool IsAvailable => false;
+
+    public string StatusDescription => DefaultReason;
+
+    public MsrReadResult Read(int processorGroup, int processorNumber, int msrAddress)
+    {
+        if (!Security.ReadPolicy.IsAllowed(msrAddress))
+        {
+            return MsrReadResult.Fail(
+                $"EndereÃ§o 0x{msrAddress:X} nÃ£o estÃ¡ na lista autorizada do projeto (0x1A2, 0x19C, 0x1B1). Leitura recusada.",
+                87); // ERROR_INVALID_PARAMETER
+        }
+
+        return MsrReadResult.Fail(DefaultReason, 3); // ERROR_PATH_NOT_FOUND (mecanismo ausente)
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\Bits.cs ==========
+
+using System.Text;
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Utilitarios de manipulacao de bits para valores brutos de MSR de 64 bits.
+/// Nenhuma interpretacao aqui e presumida: toda mascara usada pelos decodificadores
+/// cita a documentacao Intel aplicavel ao Tiger Lake.
+/// </summary>
+public static class Bits
+{
+    /// <summary>Extrai <paramref name="width"/> bits a partir de <paramref name="loBit"/>.</summary>
+    public static ulong Extract(ulong value, int loBit, int width)
+        => width >= 64 ? value : (value >> loBit) & ((1UL << width) - 1UL);
+
+    public static string Hex16(ulong value) => $"0x{value:X16}";
+
+    /// <summary>Representacao binaria de 64 bits em grupos de 8, do bit 63 ao bit 0.</summary>
+    public static string Bin64(ulong value)
+    {
+        var sb = new StringBuilder(71);
+        for (var bit = 63; bit >= 0; bit--)
+        {
+            sb.Append(((value >> bit) & 1UL) == 1UL ? '1' : '0');
+            if (bit > 0 && bit % 8 == 0)
+            {
+                sb.Append(' ');
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    public static string Range(int hi, int lo) => hi == lo ? $"[{hi}]" : $"[{hi}:{lo}]";
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\DecodedField.cs ==========
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Campo decodificado de um MSR, com a citacao documental que fundamenta a interpretacao.
+/// Campos reservados/nao documentados sao listados como "Reservado" e NUNCA interpretados.
+/// </summary>
+public sealed record DecodedField
+{
+    /// <summary>Intervalo de bits, ex.: "[23:16]".</summary>
+    public required string Bits { get; init; }
+
+    /// <summary>Nome do campo conforme a documentacao Intel.</summary>
+    public required string Name { get; init; }
+
+    /// <summary>Mascara de 64 bits aplicada sobre o valor bruto.</summary>
+    public required ulong Mask { get; init; }
+
+    /// <summary>Deslocamento (bits) aplicado ao valor bruto.</summary>
+    public required int Shift { get; init; }
+
+    /// <summary>Accesso documentado: "RO", "R/W", "R/WC0" etc. Para leitura pura, tudo e efetivamente read-only.</summary>
+    public required string Access { get; init; }
+
+    /// <summary>Classificacao temporal: "Corrente", "Historico", "Configuracao", "Medicao" ou "Reservado".</summary>
+    public required string Kind { get; init; }
+
+    /// <summary>Significado do campo, em portugues, fiel a documentacao.</summary>
+    public required string Meaning { get; init; }
+
+    /// <summary>Citacao da fonte Intel (documento e secao/tabela).</summary>
+    public required string Citation { get; init; }
+
+    /// <summary>Valor bruto extraido com a mascara (ja deslocado).</summary>
+    public required ulong RawValue { get; init; }
+
+    /// <summary>Observacoes e limitacoes (ex.: conversao de Tau nao documentada).</summary>
+    public string? Note { get; init; }
+
+    public string RawHex => $"0x{RawValue:X}";
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\PackageThermStatusDecoding.cs ==========
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Decodificador do MSR_PACKAGE_THERM_STATUS (0x1B1) â€” escopo: POR PACOTE (SDM Vol. 4).
+///
+/// Fonte: Intel 64 and IA-32 SDM, Vol. 4, tabela do registro. Suporte verificavel via
+/// CPUID.06H:EAX (bit 6 â€” "Package thermal status via MSR 0x1B1").
+/// Classificacao temporal identica a IA32_THERM_STATUS: bits de status (RO) = corrente;
+/// bits de log (R/WC0) = historico; RDMSR nao os limpa e este aplicativo nunca escreve.
+/// Bits acima de [22:16] nao constam na tabela extraida do SDM Vol. 4 e sao tratados como
+/// NAO DOCUMENTADOS (exibidos apenas em bruto). O datasheet TGL 631121-012 Â§4.1.3.2.1 menciona
+/// um bit "Out of Specification" neste MSR e em IA32_THERM_STATUS, porem sem posicao definida
+/// na tabela extraida â€” portanto NAO decodificado aqui.
+/// </summary>
+public sealed record PackageThermStatusDecoding
+{
+    public required ulong Raw { get; init; }
+
+    public required bool ThermalStatus { get; init; }      // bit 0 â€” corrente
+    public required bool ThermalStatusLog { get; init; }   // bit 1 â€” historico
+    public required bool ProchotEvent { get; init; }       // bit 2 â€” corrente (componente externo)
+    public required bool ProchotLog { get; init; }         // bit 3 â€” historico
+    public required bool CriticalTempStatus { get; init; } // bit 4
+    public required bool CriticalTempLog { get; init; }    // bit 5
+    public required bool Threshold1Status { get; init; }   // bit 6
+    public required bool Threshold1Log { get; init; }      // bit 7
+    public required bool Threshold2Status { get; init; }   // bit 8
+    public required bool Threshold2Log { get; init; }      // bit 9
+    public required bool PowerLimitStatus { get; init; }   // bit 10
+    public required bool PowerLimitLog { get; init; }      // bit 11
+    public required int DigitalReadout { get; init; }      // bits [22:16]
+
+    /// <summary>Temperatura do pacote em Â°C = TjMAX âˆ’ DigitalReadout (quando aplicavel).</summary>
+    public required int? TemperatureC { get; init; }
+
+    public required IReadOnlyList<DecodedField> Fields { get; init; }
+
+    private const string Citation = "Intel SDM Vol. 4, tabela MSR_PACKAGE_THERM_STATUS (MSR 0x1B1); escopo: por pacote";
+
+    public static PackageThermStatusDecoding Decode(ulong value, int? tjMaxC)
+    {
+        bool B(int bit) => Bits.Extract(value, bit, 1) == 1UL;
+        var readout = (int)Bits.Extract(value, 16, 7);
+
+        DecodedField Flag(int bit, string name, string meaning, string kind) => new()
+        {
+            Bits = Bits.Range(bit, bit), Name = name, Mask = 1UL << bit, Shift = bit,
+            Access = kind == "Historico" ? "R/WC0 (log â€” limpo apenas por escrita de 0; RDMSR nao limpa)" : "RO",
+            Kind = kind, RawValue = B(bit) ? 1UL : 0UL, Meaning = meaning, Citation = Citation,
+        };
+
+        var fields = new List<DecodedField>
+        {
+            Flag(0, "Package Thermal Status", "Indica que a saida de alta temperatura do sensor termico digital DO PACOTE esta ativa "
+                 + "neste momento (temperatura do pacote atingiu a temperatura de ativacao do TCC).", "Corrente"),
+            Flag(1, "Package Thermal Status Log", "Registro historico do sensor de alta temperatura do pacote. Permanece setado ate "
+                 + "limpeza por software; RDMSR nao o limpa.", "Historico"),
+            Flag(2, "Package PROCHOT# Event", "Indica que o sinal PROCHOT# do pacote esta sendo asserido por OUTRO componente da "
+                 + "plataforma neste momento (por exemplo, VR termicamente sobrecarregado, fonte ou outro dispositivo).", "Corrente"),
+            Flag(3, "Package PROCHOT# Log", "Registro historico de assercao de PROCHOT# por componente externo no pacote.", "Historico"),
+            Flag(4, "Package Critical Temperature Status", "Status corrente do detector de temperatura critica do pacote.", "Corrente"),
+            Flag(5, "Package Critical Temperature Status Log", "Registro historico de temperatura critica do pacote.", "Historico"),
+            Flag(6, "Package Thermal Threshold #1 Status", "Status corrente do limiar termico #1 do pacote.", "Corrente"),
+            Flag(7, "Package Thermal Threshold #1 Log", "Registro historico do limiar termico #1 do pacote.", "Historico"),
+            Flag(8, "Package Thermal Threshold #2 Status", "Status corrente do limiar termico #2 do pacote.", "Corrente"),
+            Flag(9, "Package Thermal Threshold #2 Log", "Registro historico do limiar termico #2 do pacote.", "Historico"),
+            Flag(10, "Package Power Limitation Status", "Status corrente de limitacao por potencia no pacote.", "Corrente"),
+            Flag(11, "Package Power Limitation Log", "Registro historico de limitacao por potencia no pacote.", "Historico"),
+            new()
+            {
+                Bits = Bits.Range(15, 12), Name = "Reservado", Mask = 0xF000, Shift = 12,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 12, 4),
+                Meaning = "Bits reservados. NAO interpretados.", Citation = Citation,
+            },
+            new()
+            {
+                Bits = Bits.Range(22, 16), Name = "Package Digital Readout", Mask = 0x7F0000, Shift = 16,
+                Access = "RO", Kind = "Medicao", RawValue = (ulong)readout,
+                Meaning = "Leitura digital do sensor do pacote em graus Celsius relativa a temperatura de ativacao do TCC: "
+                        + "T_package = TjMAX âˆ’ Package Digital Readout.",
+                Citation = Citation + "; datasheet TGL 631121-012 Â§4.1.3.2",
+            },
+            new()
+            {
+                Bits = Bits.Range(63, 23), Name = "Nao documentado (tratado como reservado)", Mask = 0xFFFFFFFF_FF800000, Shift = 23,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 23, 41),
+                Meaning = "Bits sem definicao na tabela extraida do SDM Vol. 4 para este MSR. NAO interpretados. O datasheet TGL "
+                        + "Â§4.1.3.2.1 referencia um bit 'Out of Specification' sem posicao definida nesta tabela â€” nao decodificado.",
+                Citation = Citation + "; datasheet TGL 631121-012 Â§4.1.3.2.1 (mencao a 'Out of Specification')",
+            },
+        };
+
+        return new PackageThermStatusDecoding
+        {
+            Raw = value,
+            ThermalStatus = B(0),
+            ThermalStatusLog = B(1),
+            ProchotEvent = B(2),
+            ProchotLog = B(3),
+            CriticalTempStatus = B(4),
+            CriticalTempLog = B(5),
+            Threshold1Status = B(6),
+            Threshold1Log = B(7),
+            Threshold2Status = B(8),
+            Threshold2Log = B(9),
+            PowerLimitStatus = B(10),
+            PowerLimitLog = B(11),
+            DigitalReadout = readout,
+            TemperatureC = tjMaxC is not null ? tjMaxC - readout : null,
+            Fields = fields,
+        };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ProchotAssessment.cs ==========
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Analise do PROCHOT combinando IA32_THERM_STATUS (por nucleo) e PACKAGE_THERM_STATUS (pacote).
+///
+/// Fundamentacao (datasheet TGL 631121-012 Â§4.1.3.3 "PROCHOT# Signal"):
+///   "The PROCHOT# (processor hot) signal is asserted by the processor when the TCC is active...
+///    The PROCHOT# signal can be configured to the following modes: Input Only / Output Only /
+///    Bi-Directional" e, no modo entrada (padrao): "the processor will only monitor PROCHOT#
+///    assertions and respond by setting the maximum frequency to 10KHz" â€” ou seja, o sinal PODE
+///    vir de componentes externos (VR, fonte, etc.).
+///
+/// Regra de classificacao adotada (sem especulacao):
+///   1. Status termico interno corrente (bit 0) em nucleo ou pacote  -> "termico interno corrente".
+///   2. Sem bit 0, mas com PROCHOT Event (bit 2) corrente            -> "assercao externa corrente"
+///      (o SDM define o bit 2 como sinal asserido por outro componente).
+///   3. Apenas bits de LOG setados (bit 1/3)                          -> "origem NAO confirmavel
+///      por leitura de MSR" â€” o aplicativo declara a limitacao em vez de atribuir causa.
+///   4. Nenhum indicador                                             -> "nenhum evento detectado".
+/// </summary>
+public sealed record ProchotAssessment
+{
+    public required string Classification { get; init; }
+
+    public required string Detail { get; init; }
+
+    public required string Caveat { get; init; }
+
+    public static ProchotAssessment Assess(ThermStatusDecoding core, PackageThermStatusDecoding package)
+    {
+        var internalCurrent = core.ThermalStatus || package.ThermalStatus;
+        var externalCurrent = core.ProchotEvent || package.ProchotEvent;
+        var anyLog = core.ThermalStatusLog || core.ProchotLog || package.ThermalStatusLog || package.ProchotLog;
+
+        const string caveat =
+            "ATENCAO: conforme o datasheet TGL 631121-012 Â§4.1.3.3, o sinal PROCHOT# pode operar como entrada, saida ou "
+            + "bidirecional (entrada e o padrao documentado). A leitura destes MSRs NAO identifica qual dispositivo fisico "
+            + "asseriu a linha; quando apenas o registro historico esta setado, a origem (evento termico interno x solicitacao "
+            + "externa) NAO pode ser confirmada por esta leitura.";
+
+        string classification;
+        string detail;
+
+        if (internalCurrent && externalCurrent)
+        {
+            classification = "Evento termico interno corrente COM sinal externo simultaneo";
+            detail = "Bit 0 (Thermal Status) e bit 2 (PROCHOT#/FORCEPR# Event) ativos em nucleo e/ou pacote na mesma amostragem: "
+                   + "ha atuacao do controle termico interno e assercao corrente de sinal por componente externo. A precedencia "
+                   + "temporal entre os dois nao pode ser determinada dentro do intervalo de amostragem.";
+        }
+        else if (internalCurrent)
+        {
+            classification = "Evento termico interno corrente (atuacao do controle termico)";
+            detail = "Bit 0 (Thermal Status) ativo em nucleo e/ou pacote: a temperatura atingiu a temperatura de ativacao do TCC "
+                   + "(TjMAX âˆ’ TCC Activation Offset). O PROCHOT# e asserido pelo proprio processador quando o TCC esta ativo.";
+        }
+        else if (externalCurrent)
+        {
+            classification = "PROCHOT corrente asserido por componente externo";
+            detail = "Bit 2 (PROCHOT#/FORCEPR# Event) ativo sem status termico interno (bit 0) em nucleo ou pacote: conforme o SDM, "
+                   + "o bit 2 indica sinal asserido por outro componente da plataforma â€” indicacao forte de solicitacao EXTERNA, "
+                   + "nao de aquecimento interno.";
+        }
+        else if (anyLog)
+        {
+            classification = "Apenas registro historico â€” origem nao confirmavel por esta leitura";
+            detail = "Existem bits de LOG setados (eventos anteriores), mas nenhum indicador corrente. Os registros nao distinguem "
+                   + "se a assercao original partiu do sensor termico interno ou de um componente externo; qualquer afirmacao de "
+                   + "causa seria especulacao. O log em software deste aplicativo registra as transicoes observadas entre amostras.";
+        }
+        else
+        {
+            classification = "Nenhum evento PROCHOT/termico detectado nesta amostragem";
+            detail = "Bits 0 a 3 inativos em IA32_THERM_STATUS e PACKAGE_THERM_STATUS na ultima amostragem.";
+        }
+
+        return new ProchotAssessment { Classification = classification, Detail = detail, Caveat = caveat };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\TemperatureTargetDecoding.cs ==========
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Decodificador do MSR_TEMPERATURE_TARGET (IA32_TEMPERATURE_TARGET, 0x1A2).
+///
+/// Fontes aplicaveis ao Tiger Lake (Core i7-1195G7):
+///  - Intel 11th Generation Core Processor Families Datasheet, Vol. 1, documento 631121-012:
+///      * Â§4.1.3.1  "Adaptive Thermal Monitor" â€” "TjMAX is factory calibrated and is not user
+///        configurable. The default value is software visible in the TEMPERATURE_TARGET (0x1A2)
+///        MSR, bits [23:16]."
+///      * Â§4.1.3.1.1 "TCC Activation Offset" â€” offset em GRAUS CELSIUS escrito nos bits [29:24],
+///        subtraido do valor dos bits [23:16]; e, no modo com janela temporal, o Tau e escrito
+///        nos bits [6:0] do mesmo MSR, aplicado sobre uma media EWMA de temperatura.
+///  - Intel 64 and IA-32 SDM, Vol. 4 (Model-Specific Registers), tabela do MSR_TEMPERATURE_TARGET:
+///      * bits [23:16] Temperature Target; bits [27:24] TCC Activation Offset; bits [15:0] e
+///        [63:28] reservados. O SDM generico NAO documenta o campo Tau.
+///
+/// Politica de decodificacao adotada (a mais especifica para Tiger Lake prevalece):
+///  - TjMAX: bits [23:16] (fontes concordam).
+///  - TCC Activation Offset: bits [29:24] (datasheet TGL, Â§4.1.3.1.1; corroborado pelo driver
+///    termico Linux intel_tcc, que usa mascara 0x3F para TGL+). O valor segundo a mascara
+///    generica do SDM ([27:24]) tambem e apresentado para conferencia; qualquer divergencia
+///    entre as duas leituras e sinalizada explicitamente.
+///  - Tau: bits [6:0] (datasheet TGL Â§4.1.3.1.1). A conversao do valor bruto para segundos
+///    NAO e documentada para o TCC do Tiger Lake â€” o valor e exibido em bruto, com a
+///    limitacao declarada. Nao confundir com o Tau do Turbo Boost (dominio de MSR distinto).
+/// </summary>
+public sealed record TemperatureTargetDecoding
+{
+    public required ulong Raw { get; init; }
+
+    /// <summary>TjMAX em graus Celsius (bits [23:16]). NAO presumir 100 Â°C sem confirmar a leitura.</summary>
+    public required int TjMaxC { get; init; }
+
+    /// <summary>TCC Activation Offset segundo o datasheet Tiger Lake (bits [29:24]).</summary>
+    public required int OffsetTgl { get; init; }
+
+    /// <summary>TCC Activation Offset segundo o SDM Vol. 4 generico (bits [27:24]).</summary>
+    public required int OffsetSdm { get; init; }
+
+    /// <summary>Verdadeiro quando as duas mascaras produzem valores diferentes.</summary>
+    public required bool OffsetDivergent { get; init; }
+
+    /// <summary>Valor bruto do campo Tau (bits [6:0]). Sem conversao para segundos â€” limitacao documentada.</summary>
+    public required int TauRaw { get; init; }
+
+    /// <summary>Temperatura-alvo media = TjMAX âˆ’ TCC Activation Offset (fonte: datasheet TGL Â§4.1.3.1.1).</summary>
+    public required int? AverageTargetC { get; init; }
+
+    public required IReadOnlyList<DecodedField> Fields { get; init; }
+
+    public static TemperatureTargetDecoding Decode(ulong value)
+    {
+        var tjMax = (int)Bits.Extract(value, 16, 8);
+        var offsetTgl = (int)Bits.Extract(value, 24, 6); // [29:24] â€” datasheet TGL
+        var offsetSdm = (int)Bits.Extract(value, 24, 4); // [27:24] â€” SDM Vol. 4 generico
+        var tauRaw = (int)Bits.Extract(value, 0, 7);     // [6:0] â€” datasheet TGL
+
+        const string dsTgl = "Intel 11th Gen Core Datasheet Vol. 1, 631121-012, Â§4.1.3.1/Â§4.1.3.1.1";
+        const string sdm4 = "Intel SDM Vol. 4, tabela MSR_TEMPERATURE_TARGET (0x1A2)";
+
+        var fields = new List<DecodedField>
+        {
+            new()
+            {
+                Bits = Bits.Range(23, 16), Name = "Temperature Target (TjMAX)", Mask = 0xFF0000, Shift = 16,
+                Access = "RO (calibrado em fabrica)", Kind = "Configuracao", RawValue = (ulong)tjMax,
+                Meaning = "TjMAX â€” temperatura maxima de juncao em graus Celsius, calibrada em fabrica e nao configuravel pelo usuario. "
+                        + "E a partir dela que o offset de ativacao do TCC e subtraido. NAO presumir 100 Â°C sem confirmar a leitura.",
+                Citation = $"{dsTgl}; {sdm4}",
+            },
+            new()
+            {
+                Bits = Bits.Range(29, 24), Name = "TCC Activation Offset (fonte TGL)", Mask = 0x3F000000, Shift = 24,
+                Access = "RO para leitura (escrita protegida por MSR_PLATFORM_INFO[30])", Kind = "Configuracao", RawValue = (ulong)offsetTgl,
+                Meaning = "Offset, em graus Celsius, subtraido de TjMAX para determinar a temperatura-alvo media de ativacao do TCC. "
+                        + "Temperatura-alvo media = TjMAX âˆ’ offset.",
+                Citation = dsTgl + " (offset em bits [29:24]); corroborado pela mascara 0x3F do driver intel_tcc para TGL+",
+                Note = "O SDM Vol. 4 generico lista o campo como [27:24]; a fonte especifica do Tiger Lake prevalece. "
+                     + "O valor pela mascara generica e exibido para conferencia e qualquer divergencia e sinalizada.",
+            },
+            new()
+            {
+                Bits = Bits.Range(27, 24), Name = "TCC Activation Offset (fonte SDM generica â€” conferencia)", Mask = 0x0F000000, Shift = 24,
+                Access = "RO para leitura", Kind = "Configuracao", RawValue = (ulong)offsetSdm,
+                Meaning = "Mesmo campo segundo a mascara generica do SDM Vol. 4 (bits [27:24]), apresentado apenas para conferencia "
+                        + "contra a leitura de [29:24] do datasheet Tiger Lake.",
+                Citation = sdm4,
+            },
+            new()
+            {
+                Bits = Bits.Range(6, 0), Name = "TCC Activation Temperature Time Window (Tau)", Mask = 0x7F, Shift = 0,
+                Access = "RO para leitura", Kind = "Configuracao", RawValue = (ulong)tauRaw,
+                Meaning = "Janela temporal opcional usada para gerenciar desempenho no valor do TCC Activation Offset via media "
+                        + "exponencialmente ponderada (EWMA) de temperatura. O controle termico tambem atua no limite critico TjMAX; "
+                        + "o offset NAO substitui o TjMAX.",
+                Citation = dsTgl + " â€” \"an offset (degrees Celsius) is written to the TEMPERATURE_TARGET (0x1A2) MSR, bits [29:24], "
+                         + "and the time window (Tau) is written to the TEMPERATURE_TARGET (0x1A2) MSR [6:0]\"",
+                Note = "LIMITACAO: a conversao do valor bruto de Tau para segundos NAO e documentada para o mecanismo de TCC do Tiger Lake. "
+                     + "O valor e exibido em bruto. Nao confundir com o Tau do Turbo Boost. O SDM Vol. 4 NAO documenta este campo "
+                     + "(lista [15:0] como reservado) â€” a interpretacao aqui segue exclusivamente o datasheet Tiger Lake.",
+            },
+            new()
+            {
+                Bits = Bits.Range(15, 7), Name = "Reservado", Mask = 0xFE80, Shift = 7,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 7, 9),
+                Meaning = "Bits reservados / nao documentados para Tiger Lake. NAO interpretados.",
+                Citation = $"{sdm4} (lista [15:0] como reservado; o datasheet TGL define apenas [6:0] como Tau)",
+            },
+            new()
+            {
+                Bits = Bits.Range(63, 30), Name = "Reservado", Mask = 0xFFFFFFFF_C0000000, Shift = 30,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 30, 34),
+                Meaning = "Bits reservados / nao documentados para Tiger Lake. NAO interpretados.",
+                Citation = sdm4 + " (lista [63:28] como reservado; a extensao [29:24] segue o datasheet TGL)",
+            },
+        };
+
+        return new TemperatureTargetDecoding
+        {
+            Raw = value,
+            TjMaxC = tjMax,
+            OffsetTgl = offsetTgl,
+            OffsetSdm = offsetSdm,
+            OffsetDivergent = offsetTgl != offsetSdm,
+            TauRaw = tauRaw,
+            AverageTargetC = tjMax - offsetTgl,
+            Fields = fields,
+        };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ThermStatusDecoding.cs ==========
+
+namespace IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Decodificador do IA32_THERM_STATUS (0x19C) â€” escopo: POR PROCESSADOR LOGICO (SDM Vol. 4).
+///
+/// Fonte: Intel 64 and IA-32 SDM, Vol. 4, tabela IA32_THERM_STATUS (extraida da revisao corrente
+/// do documento 335592-sdm-vol-4). Politica de classificacao temporal (requisito Â§6):
+///   - Bits de status (RO) = estado CORRENTE no momento da leitura;
+///   - Bits de log (R/WC0) = registro HISTORICO (permanecem setados ate que um SOFTWARE escreva 0;
+///     a instrucao RDMSR nao os limpa â€” este aplicativo nunca escreve nos registradores).
+/// Observacao: outras ferramentas (inclusive o ThrottleStop, se configurado para isso) podem
+/// limpar bits de log escrevendo nos MSRs; esse efeito e externo a este aplicativo e, por isso,
+/// todo evento e registrado em log de software no instante da amostragem.
+///
+/// O campo Digital Readout [22:16] fornece a temperatura do DTS em graus Celsius relativa a
+/// temperatura de ativacao do TCC: T_core = TjMAX âˆ’ DigitalReadout (valida quando Reading Valid = 1).
+/// </summary>
+public sealed record ThermStatusDecoding
+{
+    public required ulong Raw { get; init; }
+
+    public required bool ThermalStatus { get; init; }          // bit 0 â€” corrente
+    public required bool ThermalStatusLog { get; init; }       // bit 1 â€” historico
+    public required bool ProchotEvent { get; init; }           // bit 2 â€” corrente (componente externo)
+    public required bool ProchotLog { get; init; }             // bit 3 â€” historico
+    public required bool CriticalTempStatus { get; init; }     // bit 4
+    public required bool CriticalTempLog { get; init; }        // bit 5
+    public required bool Threshold1Status { get; init; }       // bit 6
+    public required bool Threshold1Log { get; init; }          // bit 7
+    public required bool Threshold2Status { get; init; }       // bit 8
+    public required bool Threshold2Log { get; init; }          // bit 9
+    public required bool PowerLimitStatus { get; init; }       // bit 10
+    public required bool PowerLimitLog { get; init; }          // bit 11
+    public required bool CurrentLimitStatus { get; init; }     // bit 12
+    public required bool CurrentLimitLog { get; init; }        // bit 13
+    public required bool CrossDomainStatus { get; init; }      // bit 14
+    public required bool CrossDomainLog { get; init; }         // bit 15
+    public required int DigitalReadout { get; init; }          // bits [22:16]
+    public required int ResolutionC { get; init; }             // bits [30:27]
+    public required bool ReadingValid { get; init; }           // bit 31
+
+    /// <summary>Temperatura do DTS em Â°C = TjMAX âˆ’ DigitalReadout; nulo quando a leitura nao e valida.</summary>
+    public required int? TemperatureC { get; init; }
+
+    public required IReadOnlyList<DecodedField> Fields { get; init; }
+
+    private const string Citation = "Intel SDM Vol. 4, tabela IA32_THERM_STATUS (MSR 0x19C); escopo: por processador logico";
+
+    public static ThermStatusDecoding Decode(ulong value, int? tjMaxC)
+    {
+        bool B(int bit) => Bits.Extract(value, bit, 1) == 1UL;
+        var readout = (int)Bits.Extract(value, 16, 7);
+        var valid = B(31);
+        var resolution = (int)Bits.Extract(value, 27, 4);
+
+        DecodedField Flag(int bit, string name, string meaning, string kind, string? note = null) => new()
+        {
+            Bits = Bits.Range(bit, bit), Name = name, Mask = 1UL << bit, Shift = bit,
+            Access = kind == "Historico" ? "R/WC0 (log â€” limpo apenas por escrita de 0; RDMSR nao limpa)" : "RO",
+            Kind = kind, RawValue = B(bit) ? 1UL : 0UL, Meaning = meaning, Citation = Citation, Note = note,
+        };
+
+        var fields = new List<DecodedField>
+        {
+            Flag(0, "Thermal Status", "Indica que a saida de alta temperatura do sensor termico digital (DTS) do processador logico "
+                 + "esta ativa no momento â€” ou seja, a temperatura atingiu a temperatura de ativacao do TCC (throttling termico corrente).", "Corrente"),
+            Flag(1, "Thermal Status Log", "Registro historico: o sensor de alta temperatura foi ativado em algum momento desde o "
+                 + "ultimo reset ou desde a ultima limpeza por software. Permanece setado; RDMSR nao o limpa.", "Historico"),
+            Flag(2, "PROCHOT# ou FORCEPR# Event", "Indica que o sinal PROCHOT#/FORCEPR# ESTA SENDO asserido por OUTRO componente "
+                 + "da plataforma neste momento â€” ou seja, um sinal externo ao nucleo. Nao confundir com o bit 0 (evento termico interno).", "Corrente"),
+            Flag(3, "PROCHOT# ou FORCEPR# Log", "Registro historico: o sinal PROCHOT#/FORCEPR# foi asserido por componente externo "
+                 + "em algum momento desde o ultimo reset/limpeza. Permanece setado; RDMSR nao o limpa.", "Historico"),
+            Flag(4, "Critical Temperature Status", "Status corrente do detector de temperatura critica do processador logico.", "Corrente"),
+            Flag(5, "Critical Temperature Status Log", "Registro historico de temperatura critica no processador logico.", "Historico"),
+            Flag(6, "Thermal Threshold #1 Status", "Status corrente do limiar termico #1.", "Corrente"),
+            Flag(7, "Thermal Threshold #1 Log", "Registro historico do limiar termico #1.", "Historico"),
+            Flag(8, "Thermal Threshold #2 Status", "Status corrente do limiar termico #2.", "Corrente"),
+            Flag(9, "Thermal Threshold #2 Log", "Registro historico do limiar termico #2.", "Historico"),
+            Flag(10, "Power Limitation Status", "Status corrente de limitacao por potencia (power limiting).", "Corrente"),
+            Flag(11, "Power Limitation Log", "Registro historico de limitacao por potencia.", "Historico"),
+            Flag(12, "Current Limit Status", "Status corrente de limitacao por corrente (electrical current limiting).", "Corrente"),
+            Flag(13, "Current Limit Log", "Registro historico de limitacao por corrente.", "Historico"),
+            Flag(14, "Cross Domain Limit Status", "Status corrente de limitacao entre dominios.", "Corrente"),
+            Flag(15, "Cross Domain Limit Log", "Registro historico de limitacao entre dominios.", "Historico"),
+            new()
+            {
+                Bits = Bits.Range(22, 16), Name = "Digital Readout", Mask = 0x7F0000, Shift = 16,
+                Access = "RO", Kind = "Medicao", RawValue = (ulong)readout,
+                Meaning = "Leitura digital do DTS em graus Celsius RELATIVA a temperatura de ativacao do TCC. "
+                        + "Temperatura do nucleo = TjMAX âˆ’ Digital Readout (valida quando Reading Valid = 1).",
+                Citation = Citation + "; datasheet TGL 631121-012 Â§4.1.3.2 (DTS)",
+            },
+            new()
+            {
+                Bits = Bits.Range(26, 23), Name = "Reservado", Mask = 0x7800000, Shift = 23,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 23, 4),
+                Meaning = "Bits reservados. NAO interpretados (revisoes antigas do SDM definiam o bit 23 como 'Resolution of Digital "
+                        + "Readout'; a tabela corrente lista [26:23] reservado â€” o valor bruto e sempre exibido).",
+                Citation = Citation,
+            },
+            new()
+            {
+                Bits = Bits.Range(30, 27), Name = "Resolution in Degrees Celsius", Mask = 0x78000000, Shift = 27,
+                Access = "RO", Kind = "Medicao", RawValue = (ulong)resolution,
+                Meaning = "Resolucao da leitura digital do DTS em graus Celsius.", Citation = Citation,
+            },
+            new()
+            {
+                Bits = Bits.Range(31, 31), Name = "Reading Valid", Mask = 0x80000000, Shift = 31,
+                Access = "RO", Kind = "Medicao", RawValue = valid ? 1UL : 0UL,
+                Meaning = "1 = o campo Digital Readout [22:16] contem uma leitura valida. Se 0, a temperatura NAO e exibida "
+                        + "(aparece 'Nao disponivel â€” leitura invalida'), nunca um valor presumido.",
+                Citation = Citation,
+            },
+            new()
+            {
+                Bits = Bits.Range(63, 32), Name = "Reservado", Mask = 0xFFFFFFFF00000000, Shift = 32,
+                Access = "â€”", Kind = "Reservado", RawValue = Bits.Extract(value, 32, 32),
+                Meaning = "Bits reservados. NAO interpretados.", Citation = Citation,
+            },
+        };
+
+        return new ThermStatusDecoding
+        {
+            Raw = value,
+            ThermalStatus = B(0),
+            ThermalStatusLog = B(1),
+            ProchotEvent = B(2),
+            ProchotLog = B(3),
+            CriticalTempStatus = B(4),
+            CriticalTempLog = B(5),
+            Threshold1Status = B(6),
+            Threshold1Log = B(7),
+            Threshold2Status = B(8),
+            Threshold2Log = B(9),
+            PowerLimitStatus = B(10),
+            PowerLimitLog = B(11),
+            CurrentLimitStatus = B(12),
+            CurrentLimitLog = B(13),
+            CrossDomainStatus = B(14),
+            CrossDomainLog = B(15),
+            DigitalReadout = readout,
+            ResolutionC = resolution,
+            ReadingValid = valid,
+            TemperatureC = valid && tjMaxC is not null ? tjMaxC - readout : null,
+            Fields = fields,
+        };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\AuditLog.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+/// <summary>
+/// Log de auditoria APENAS PARA ACRESCIMO: os registros nunca sao removidos nem limpos
+/// (requisito 14.1-D). Thread-safe. Nada aqui toca no hardware.
+/// </summary>
+public sealed class AuditLog
+{
+    private readonly object _lock = new();
+    private readonly List<ReadingRecord> _records = new();
+
+    public int Count
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _records.Count;
+            }
+        }
+    }
+
+    public void Add(ReadingRecord record)
+    {
+        lock (_lock)
+        {
+            _records.Add(record);
+        }
+    }
+
+    /// <summary>Copia imutavel (ordenada por horario) para exibicao e exportacao.</summary>
+    public IReadOnlyList<ReadingRecord> Snapshot()
+    {
+        lock (_lock)
+        {
+            return _records.OrderBy(r => r.TimestampUtc).ToList();
+        }
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\DiagnosticEngine.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+using IrisXe.Thermal.Core.Access;
+using IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Motor de diagnostico (requisito 9.4): coordena amostragens, compara leituras, registra
+/// transicoes e produz diagnosticos â€” SEM modificar o hardware. Somente-leitura por heranca
+/// do contrato <see cref="IMsrReader"/>, que nao possui operacoes de escrita.
+/// </summary>
+public sealed class DiagnosticEngine
+{
+    private IMsrReader _reader;
+    private readonly AuditLog _audit;
+    private readonly List<(int Group, int Number)> _logicalProcessors;
+    private readonly object _lock = new();
+
+    public DiagnosticEngine(IMsrReader reader, AuditLog audit, IEnumerable<(int Group, int Number)> logicalProcessors)
+    {
+        _reader = reader;
+        _audit = audit;
+        _logicalProcessors = logicalProcessors.OrderBy(p => p.Group).ThenBy(p => p.Number).ToList();
+    }
+
+    public IMsrReader Reader => _reader;
+
+    public AuditLog Audit => _audit;
+
+    public SampleSnapshot? LastSample { get; private set; }
+
+    /// <summary>Transicoes acumuladas desde o inicio da sessao â€” nunca limpas.</summary>
+    public List<TransitionEvent> TransitionLog { get; } = new();
+
+    /// <summary>Levantamento de topologia: um processador logico por grupo.</summary>
+    public IReadOnlyList<(int Group, int Number)> LogicalProcessors => _logicalProcessors;
+
+    /// <summary>
+    /// Substitui o mecanismo de leitura (ex.: trocar de "Indisponivel" para "valores manuais").
+    /// Somente leitura: qualquer leitor respeita o contrato IMsrReader, que nao possui escrita.
+    /// </summary>
+    public void SetReader(IMsrReader reader) =>
+        _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+
+    /// <summary>
+    /// Executa UMA rodada de amostragem (somente RDMSR conceitual; na Fase 1 os valores vem
+    /// do mecanismo configurado â€” indisponivel ou manual/simulado). Registra auditoria,
+    /// decodifica e detecta transicoes em relacao a amostra anterior.
+    /// </summary>
+    public SampleSnapshot CaptureSample()
+    {
+        lock (_lock)
+        {
+            var notes = new List<string>();
+            var timestamp = DateTime.UtcNow;
+
+            // --- 0x19C por processador logico (escopo documentado: por LP) ----------------
+            var coreReadings = new List<LogicalProcessorReading>();
+            int? tjMax = LastSample?.TemperatureTarget?.TjMaxC;
+            foreach (var (group, number) in _logicalProcessors)
+            {
+                var result = _reader.Read(group, number, MsrAddress.ThermStatus);
+                _audit.Add(new ReadingRecord
+                {
+                    TimestampUtc = result.TimestampUtc == default ? timestamp : result.TimestampUtc,
+                    ProcessorGroup = group,
+                    ProcessorNumber = number,
+                    MsrAddress = MsrAddress.ThermStatus,
+                    MsrName = MsrAddress.Name(MsrAddress.ThermStatus),
+                    Mechanism = _reader.MechanismName,
+                    Status = result.Success ? "Sucesso" : "Falha",
+                    RawHex = result.Success ? result.ValueHex : null,
+                    Error = result.ErrorMessage,
+                    Win32Error = result.Win32Error,
+                    Simulated = result.Simulated,
+                });
+
+                ThermStatusDecoding? decoded = null;
+                if (result.Success)
+                {
+                    decoded = ThermStatusDecoding.Decode(result.Value, tjMax);
+                }
+
+                coreReadings.Add(new LogicalProcessorReading
+                {
+                    ProcessorGroup = group, ProcessorNumber = number, Result = result, Decoded = decoded,
+                });
+            }
+
+            // --- 0x1B1 por LP para conferencia (escopo: pacote) ---------------------------
+            var packageReadings = new List<LogicalProcessorReading>();
+            MsrReadResult? firstPackageResult = null;
+            foreach (var (group, number) in _logicalProcessors)
+            {
+                var result = _reader.Read(group, number, MsrAddress.PackageThermStatus);
+                _audit.Add(new ReadingRecord
+                {
+                    TimestampUtc = result.TimestampUtc == default ? timestamp : result.TimestampUtc,
+                    ProcessorGroup = group,
+                    ProcessorNumber = number,
+                    MsrAddress = MsrAddress.PackageThermStatus,
+                    MsrName = MsrAddress.Name(MsrAddress.PackageThermStatus),
+                    Mechanism = _reader.MechanismName,
+                    Status = result.Success ? "Sucesso" : "Falha",
+                    RawHex = result.Success ? result.ValueHex : null,
+                    Error = result.ErrorMessage,
+                    Win32Error = result.Win32Error,
+                    Simulated = result.Simulated,
+                });
+
+                if (result.Success && firstPackageResult is null)
+                {
+                    firstPackageResult = result;
+                }
+
+                packageReadings.Add(new LogicalProcessorReading
+                {
+                    ProcessorGroup = group,
+                    ProcessorNumber = number,
+                    Result = result,
+                    Decoded = null, // pacote nao tem decodificacao por-LP; exibida uma vez, abaixo
+                });
+            }
+
+            var packageDecoded = firstPackageResult is not null
+                ? PackageThermStatusDecoding.Decode(firstPackageResult.Value, tjMax)
+                : null;
+
+            // Conferencia: leituras do pacote divergentes entre LPs NAO sao descartadas.
+            var distinctPackage = packageReadings
+                .Where(r => r.Result.Success)
+                .Select(r => r.Result.Value)
+                .Distinct()
+                .ToList();
+            if (distinctPackage.Count > 1)
+            {
+                notes.Add(
+                    "MSR_PACKAGE_THERM_STATUS (0x1B1) retornou valores diferentes entre processadores logicos "
+                    + $"({string.Join(", ", distinctPackage.Select(Bits.Hex16))}). Escopo documentado e por pacote; "
+                    + "a divergencia NAO foi descartada e deve ser investigada (pode indicar leitura em momentos "
+                    + "diferentes do mesmo contador ou comportamento de virtualizacao).");
+            }
+
+            // --- 0x1A2 por LP para conferencia (valores de fabrica devem ser iguais) ------
+            var targetReadings = new List<MsrReadResult>();
+            TemperatureTargetDecoding? targetDecoded = null;
+            foreach (var (group, number) in _logicalProcessors)
+            {
+                var result = _reader.Read(group, number, MsrAddress.TemperatureTarget);
+                _audit.Add(new ReadingRecord
+                {
+                    TimestampUtc = result.TimestampUtc == default ? timestamp : result.TimestampUtc,
+                    ProcessorGroup = group,
+                    ProcessorNumber = number,
+                    MsrAddress = MsrAddress.TemperatureTarget,
+                    MsrName = MsrAddress.Name(MsrAddress.TemperatureTarget),
+                    Mechanism = _reader.MechanismName,
+                    Status = result.Success ? "Sucesso" : "Falha",
+                    RawHex = result.Success ? result.ValueHex : null,
+                    Error = result.ErrorMessage,
+                    Win32Error = result.Win32Error,
+                    Simulated = result.Simulated,
+                });
+
+                targetReadings.Add(result);
+                if (result.Success && targetDecoded is null)
+                {
+                    targetDecoded = TemperatureTargetDecoding.Decode(result.Value);
+                }
+            }
+
+            var distinctTargets = targetReadings
+                .Where(r => r.Success)
+                .Select(r => r.Value)
+                .Distinct()
+                .ToList();
+            if (distinctTargets.Count > 1)
+            {
+                notes.Add(
+                    "MSR_TEMPERATURE_TARGET (0x1A2) retornou valores diferentes entre processadores logicos "
+                    + $"({string.Join(", ", distinctTargets.Select(Bits.Hex16))}). Esperado: valor calibrado em fabrica "
+                    + "identico. A divergencia NAO foi descartada â€” cada valor permanece no log de auditoria.");
+            }
+
+            if (coreReadings.All(r => !r.Result.Success))
+            {
+                notes.Add(
+                    "Nenhuma leitura de IA32_THERM_STATUS foi bem-sucedida nesta amostragem. Os campos exibirao "
+                    + "'Nao disponivel' com o motivo registrado no log de auditoria (nenhum valor presumido e exibido).");
+            }
+
+            var snapshot = new SampleSnapshot
+            {
+                TimestampUtc = timestamp,
+                CoreReadings = coreReadings,
+                PackageReadings = packageReadings,
+                TemperatureTargetReadings = targetReadings,
+                TemperatureTarget = targetDecoded,
+                Package = packageDecoded,
+                Notes = notes,
+                MechanismName = _reader.MechanismName,
+                Simulated = _reader.IsSimulated,
+            };
+
+            // Transicoes em relacao a amostra anterior (requisito Â§6) â€” nunca limpas.
+            foreach (var transition in TransitionDetector.Diff(LastSample, snapshot))
+            {
+                TransitionLog.Add(transition);
+            }
+
+            LastSample = snapshot;
+            return snapshot;
+        }
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\ReadingRecord.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+/// <summary>
+/// Registro de auditoria de UMA leitura (requisito 14.1-D): processador logico consultado,
+/// endereco do MSR, valor bruto, data e horario, resultado e erro ocorrido, quando aplicavel.
+/// </summary>
+public sealed record ReadingRecord
+{
+    public required DateTime TimestampUtc { get; init; }
+
+    public required int ProcessorGroup { get; init; }
+
+    public required int ProcessorNumber { get; init; }
+
+    public required int MsrAddress { get; init; }
+
+    public required string MsrName { get; init; }
+
+    public required string Mechanism { get; init; }
+
+    /// <summary>"Sucesso", "Falha" ou "Nao disponivel".</summary>
+    public required string Status { get; init; }
+
+    /// <summary>Valor bruto em hexadecimal, quando obtido.</summary>
+    public string? RawHex { get; init; }
+
+    public string? Error { get; init; }
+
+    public int? Win32Error { get; init; }
+
+    /// <summary>Verdadeiro quando o valor e de teste manual (SIMULADO) â€” sempre rotulado.</summary>
+    public required bool Simulated { get; init; }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\SampleSnapshot.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+using IrisXe.Thermal.Core.Access;
+using IrisXe.Thermal.Core.Decoding;
+
+/// <summary>Leitura de um MSR em um processador logico, com decodificacao quando bem-sucedida.</summary>
+public sealed record LogicalProcessorReading
+{
+    public required int ProcessorGroup { get; init; }
+
+    public required int ProcessorNumber { get; init; }
+
+    public required MsrReadResult Result { get; init; }
+
+    public ThermStatusDecoding? Decoded { get; init; }
+
+    /// <summary>Temperatura calculada (TjMAX âˆ’ readout), quando valida. Nulo = nao disponivel.</summary>
+    public int? TemperatureC => Decoded?.TemperatureC;
+}
+
+/// <summary>
+/// Uma rodada completa de amostragem: 0x19C em cada processador logico; 0x1B1 e 0x1A2 em
+/// todos os processadores logicos para conferencia de consistencia (divergencias entre LPs
+/// NAO sao descartadas â€” viram notas na propria amostra, requisito 14.1-A).
+/// </summary>
+public sealed record SampleSnapshot
+{
+    public required DateTime TimestampUtc { get; init; }
+
+    public required IReadOnlyList<LogicalProcessorReading> CoreReadings { get; init; }
+
+    /// <summary>Leituras do MSR do pacote (0x1B1) em cada processador logico â€” conferencia.</summary>
+    public required IReadOnlyList<LogicalProcessorReading> PackageReadings { get; init; }
+
+    /// <summary>Leituras do MSR de temperatura-alvo (0x1A2) em cada processador logico â€” conferencia.</summary>
+    public required IReadOnlyList<MsrReadResult> TemperatureTargetReadings { get; init; }
+
+    /// <summary>Decodificacao do 0x1A2 (primeira leitura bem-sucedida).</summary>
+    public TemperatureTargetDecoding? TemperatureTarget { get; init; }
+
+    /// <summary>Decodificacao do 0x1B1 (primeira leitura bem-sucedida).</summary>
+    public PackageThermStatusDecoding? Package { get; init; }
+
+    /// <summary>Divergencias entre processadores logicos / falhas â€” nunca descartadas.</summary>
+    public required IReadOnlyList<string> Notes { get; init; }
+
+    /// <summary>Mecanismo que produziu a amostra (para rotulagem de modo simulado).</summary>
+    public required string MechanismName { get; init; }
+
+    public required bool Simulated { get; init; }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\ThrottleStopComparison.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+using IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Comparacao controlada antes/depois da inicializacao do ThrottleStop (requisito 14.1-B).
+///
+/// Limitacoes declaradas na propria interface:
+///   - A comparacao NAO prova, por si so, que o ThrottleStop foi responsavel por qualquer
+///     alteracao observada (outras tarefas/BIOS/SMM podem ter escrito nos registradores).
+///   - A Fase 1 nao realiza leituras reais; esta comparacao funciona com valores reais
+///     (Fase 2) ou com valores manuais de teste (sempre rotulados como SIMULADOS).
+/// </summary>
+public sealed record ThrottleStopBaseline
+{
+    public required string Label { get; init; } // "ANTES" ou "DEPOIS"
+
+    public required DateTime TimestampUtc { get; init; }
+
+    /// <summary>Valor bruto do 0x1A2 por processador logico.</summary>
+    public required IReadOnlyDictionary<int, ulong> TemperatureTargetByLp { get; init; }
+
+    /// <summary>Valor bruto do 0x19C por processador logico.</summary>
+    public required IReadOnlyDictionary<int, ulong> ThermStatusByLp { get; init; }
+
+    /// <summary>Valor bruto do 0x1B1 (pacote).</summary>
+    public required ulong? PackageThermStatus { get; init; }
+
+    public required bool Simulated { get; init; }
+}
+
+public sealed record ComparisonEntry
+{
+    public required int MsrAddress { get; init; }
+
+    public required string MsrName { get; init; }
+
+    public required int ProcessorNumber { get; init; }
+
+    public required string BeforeHex { get; init; }
+
+    public required string AfterHex { get; init; }
+
+    public required bool Changed { get; init; }
+}
+
+public sealed record ComparisonReport
+{
+    public required DateTime BaselineAtUtc { get; init; }
+
+    public required DateTime ComparedAtUtc { get; init; }
+
+    public required IReadOnlyList<ComparisonEntry> Entries { get; init; }
+
+    public required bool Simulated { get; init; }
+
+    public const string Disclaimer =
+        "A comparacao registra diferencas entre as duas leituras, mas NAO prova causalidade: o ThrottleStop nÃ£o Ã© o Ãºnico "
+        + "agente que pode escrever nesses registradores (BIOS/SMM tambÃ©m podem). Nenhuma configuraÃ§Ã£o do ThrottleStop "
+        + "foi alterada por este aplicativo. Este aplicativo nunca escreve nos registradores.";
+}
+
+/// <summary>Fabrica de baselines e relatorios de comparacao a partir de amostras do motor.</summary>
+public static class ThrottleStopComparison
+{
+    /// <summary>Extrai uma linha de base rotulada de uma amostra.</summary>
+    public static ThrottleStopBaseline FromSample(SampleSnapshot sample, string label)
+    {
+        var targetByLp = new Dictionary<int, ulong>();
+        for (var i = 0; i < sample.TemperatureTargetReadings.Count; i++)
+        {
+            var reading = sample.TemperatureTargetReadings[i];
+            var lp = i < sample.CoreReadings.Count ? sample.CoreReadings[i].ProcessorNumber : i;
+            if (reading.Success)
+            {
+                targetByLp[lp] = reading.Value;
+            }
+        }
+
+        var thermByLp = new Dictionary<int, ulong>();
+        foreach (var reading in sample.CoreReadings)
+        {
+            if (reading.Result.Success)
+            {
+                thermByLp[reading.ProcessorNumber] = reading.Result.Value;
+            }
+        }
+
+        return new ThrottleStopBaseline
+        {
+            Label = label,
+            TimestampUtc = sample.TimestampUtc,
+            TemperatureTargetByLp = targetByLp,
+            ThermStatusByLp = thermByLp,
+            PackageThermStatus = sample.PackageReadings.FirstOrDefault(r => r.Result.Success) is { } pkgReading
+                ? pkgReading.Result.Value
+                : null,
+            Simulated = sample.Simulated,
+        };
+    }
+
+    public static ComparisonReport Compare(ThrottleStopBaseline before, ThrottleStopBaseline after)
+    {
+        var entries = new List<ComparisonEntry>();
+
+        foreach (var lp in before.TemperatureTargetByLp.Keys.Union(after.TemperatureTargetByLp.Keys).OrderBy(k => k))
+        {
+            var hasBefore = before.TemperatureTargetByLp.TryGetValue(lp, out var beforeValue);
+            var hasAfter = after.TemperatureTargetByLp.TryGetValue(lp, out var afterValue);
+            entries.Add(new ComparisonEntry
+            {
+                MsrAddress = MsrAddress.TemperatureTarget,
+                MsrName = MsrAddress.Name(MsrAddress.TemperatureTarget),
+                ProcessorNumber = lp,
+                BeforeHex = hasBefore ? Bits.Hex16(beforeValue) : "N/D",
+                AfterHex = hasAfter ? Bits.Hex16(afterValue) : "N/D",
+                Changed = hasBefore && hasAfter && beforeValue != afterValue,
+            });
+        }
+
+        foreach (var lp in before.ThermStatusByLp.Keys.Union(after.ThermStatusByLp.Keys).OrderBy(k => k))
+        {
+            var hasBefore = before.ThermStatusByLp.TryGetValue(lp, out var beforeValue);
+            var hasAfter = after.ThermStatusByLp.TryGetValue(lp, out var afterValue);
+            entries.Add(new ComparisonEntry
+            {
+                MsrAddress = MsrAddress.ThermStatus,
+                MsrName = MsrAddress.Name(MsrAddress.ThermStatus),
+                ProcessorNumber = lp,
+                BeforeHex = hasBefore ? Bits.Hex16(beforeValue) : "N/D",
+                AfterHex = hasAfter ? Bits.Hex16(afterValue) : "N/D",
+                Changed = hasBefore && hasAfter && beforeValue != afterValue,
+            });
+        }
+
+        if (before.PackageThermStatus is not null || after.PackageThermStatus is not null)
+        {
+            entries.Add(new ComparisonEntry
+            {
+                MsrAddress = MsrAddress.PackageThermStatus,
+                MsrName = MsrAddress.Name(MsrAddress.PackageThermStatus),
+                ProcessorNumber = -1, // escopo: pacote
+                BeforeHex = before.PackageThermStatus is null ? "N/D" : Bits.Hex16(before.PackageThermStatus.Value),
+                AfterHex = after.PackageThermStatus is null ? "N/D" : Bits.Hex16(after.PackageThermStatus.Value),
+                Changed = before.PackageThermStatus is not null
+                       && after.PackageThermStatus is not null
+                       && before.PackageThermStatus != after.PackageThermStatus,
+            });
+        }
+
+        return new ComparisonReport
+        {
+            BaselineAtUtc = before.TimestampUtc,
+            ComparedAtUtc = after.TimestampUtc,
+            Entries = entries,
+            Simulated = before.Simulated || after.Simulated,
+        };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\TransitionDetector.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+using IrisXe.Thermal.Core.Decoding;
+
+/// <summary>
+/// Comparador de amostras consecutivas: registra transicoes dos indicadores (correntes e
+/// historicos) dos nucleos e do pacote, sem nunca limpar nada e sem escrever nos registradores.
+/// </summary>
+public static class TransitionDetector
+{
+    public static IReadOnlyList<TransitionEvent> Diff(SampleSnapshot? previous, SampleSnapshot current)
+    {
+        var events = new List<TransitionEvent>();
+        var interval = previous is null ? 0 : (current.TimestampUtc - previous.TimestampUtc).TotalSeconds;
+
+        foreach (var reading in current.CoreReadings)
+        {
+            if (reading.Decoded is null)
+            {
+                continue;
+            }
+
+            var prev = previous?.CoreReadings.FirstOrDefault(r => r.ProcessorNumber == reading.ProcessorNumber)?.Decoded;
+            Compare(events, prev, reading.Decoded, $"NÃºcleo (LP {reading.ProcessorNumber})", MsrAddress.ThermStatus, interval);
+        }
+
+        if (current.Package is not null)
+        {
+            var prev = previous?.Package;
+            ComparePackage(events, prev, current.Package, interval);
+        }
+
+        return events;
+    }
+
+    private static void Compare(
+        List<TransitionEvent> events,
+        ThermStatusDecoding? previous,
+        ThermStatusDecoding current,
+        string scope,
+        int msr,
+        double interval)
+    {
+        Add(events, msr, scope, "Thermal Status", "Corrente",
+            previous?.ThermalStatus, current.ThermalStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, msr, scope, "Thermal Status Log", "HistÃ³rico",
+            previous?.ThermalStatusLog, current.ThermalStatusLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, msr, scope, "PROCHOT#/FORCEPR# Event", "Corrente",
+            previous?.ProchotEvent, current.ProchotEvent, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, msr, scope, "PROCHOT#/FORCEPR# Log", "HistÃ³rico",
+            previous?.ProchotLog, current.ProchotLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, msr, scope, "Critical Temperature Status", "Corrente",
+            previous?.CriticalTempStatus, current.CriticalTempStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, msr, scope, "Critical Temperature Status Log", "HistÃ³rico",
+            previous?.CriticalTempLog, current.CriticalTempLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, msr, scope, "Power Limitation Status", "Corrente",
+            previous?.PowerLimitStatus, current.PowerLimitStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, msr, scope, "Power Limitation Log", "HistÃ³rico",
+            previous?.PowerLimitLog, current.PowerLimitLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+    }
+
+    private static void ComparePackage(
+        List<TransitionEvent> events,
+        PackageThermStatusDecoding? previous,
+        PackageThermStatusDecoding current,
+        double interval)
+    {
+        Add(events, 0x1B1, "Pacote", "Package Thermal Status", "Corrente",
+            previous?.ThermalStatus, current.ThermalStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, 0x1B1, "Pacote", "Package Thermal Status Log", "HistÃ³rico",
+            previous?.ThermalStatusLog, current.ThermalStatusLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, 0x1B1, "Pacote", "Package PROCHOT# Event", "Corrente",
+            previous?.ProchotEvent, current.ProchotEvent, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, 0x1B1, "Pacote", "Package PROCHOT# Log", "HistÃ³rico",
+            previous?.ProchotLog, current.ProchotLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, 0x1B1, "Pacote", "Package Critical Temperature Status", "Corrente",
+            previous?.CriticalTempStatus, current.CriticalTempStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, 0x1B1, "Pacote", "Package Critical Temperature Status Log", "HistÃ³rico",
+            previous?.CriticalTempLog, current.CriticalTempLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+        Add(events, 0x1B1, "Pacote", "Package Power Limitation Status", "Corrente",
+            previous?.PowerLimitStatus, current.PowerLimitStatus, interval, TransitionEvent.State, TransitionEvent.State);
+        Add(events, 0x1B1, "Pacote", "Package Power Limitation Log", "HistÃ³rico",
+            previous?.PowerLimitLog, current.PowerLimitLog, interval, TransitionEvent.LogState, TransitionEvent.LogState);
+    }
+
+    private static void Add(
+        List<TransitionEvent> events,
+        int msr,
+        string scope,
+        string indicator,
+        string kind,
+        bool? before,
+        bool after,
+        double interval,
+        Func<bool, string> formatBefore,
+        Func<bool, string> formatAfter)
+    {
+        if (before is null || before == after)
+        {
+            return;
+        }
+
+        events.Add(new TransitionEvent
+        {
+            DetectedAtUtc = DateTime.UtcNow,
+            MsrAddress = msr,
+            Scope = scope,
+            Indicator = indicator,
+            Kind = kind,
+            From = formatBefore(before.Value),
+            To = formatAfter(after),
+            IntervalSeconds = interval <= 0 ? 0 : interval,
+        });
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\TransitionEvent.cs ==========
+
+namespace IrisXe.Thermal.Core.Diagnostics;
+
+using IrisXe.Thermal.Core;
+
+/// <summary>
+/// Transicao de um indicador termico detectada entre duas amostragens.
+///
+/// REGRA DE HONESTIDADE TEMPORAL (requisito Â§6): o horario registrado e o da AMOSTRAGEM em
+/// que a mudanca foi observada. O inicio real do evento ocorreu em algum momento entre a
+/// amostra anterior e a atual e NAO pode ser determinado com precisao dentro do intervalo de
+/// amostragem â€” a nota do evento deixa isso explicito.
+/// </summary>
+public sealed record TransitionEvent
+{
+    public required DateTime DetectedAtUtc { get; init; }
+
+    /// <summary>Endereco do MSR (0x19C ou 0x1B1).</summary>
+    public required int MsrAddress { get; init; }
+
+    /// <summary>"Nucleo (LP n)" ou "Pacote".</summary>
+    public required string Scope { get; init; }
+
+    public required string Indicator { get; init; }
+
+    /// <summary>"Corrente" ou "Historico".</summary>
+    public required string Kind { get; init; }
+
+    public required string From { get; init; }
+
+    public required string To { get; init; }
+
+    public required double IntervalSeconds { get; init; }
+
+    public string HonestTimestampNote =>
+        $"Detectado na amostragem de {DetectedAtUtc:HH:mm:ss} UTC; o inÃ­cio real ocorreu em algum momento nos "
+        + $"{IntervalSeconds:0.#} s anteriores (entre amostras) e nÃ£o pode ser determinado com precisÃ£o dentro do intervalo de amostragem.";
+
+    public static string State(bool active) => active ? "ativo" : "inativo";
+
+    public static string LogState(bool set) => set ? "registrado" : "nÃ£o registrado";
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Export\ExportService.cs ==========
+
+namespace IrisXe.Thermal.Core.Export;
+
+using System.Text;
+using System.Text.Json;
+using IrisXe.Thermal.Core.Diagnostics;
+
+/// <summary>
+/// Exportadores de resultados (requisito 10.5): CSV, JSON e NDJSON do log de auditoria e
+/// das transicoes. Nenhum metodo altera hardware; a escrita em disco e feita pela interface
+/// via SaveFileDialog (nada aqui toca no sistema de arquivos â€” mantem o nucleo puro e testavel).
+/// </summary>
+public static class ExportService
+{
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    public static string AuditCsv(IReadOnlyList<ReadingRecord> records)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("timestamp_utc;processor_group;processor_number;msr_address;msr_name;mechanism;status;raw_hex;win32_error;error;simulated");
+        foreach (var r in records)
+        {
+            sb.Append(r.TimestampUtc.ToString("yyyy-MM-dd HH:mm:ss.fff")).Append(';')
+              .Append(r.ProcessorGroup).Append(';')
+              .Append(r.ProcessorNumber).Append(';')
+              .Append($"0x{r.MsrAddress:X}").Append(';')
+              .Append(Escape(r.MsrName)).Append(';')
+              .Append(Escape(r.Mechanism)).Append(';')
+              .Append(r.Status).Append(';')
+              .Append(r.RawHex ?? string.Empty).Append(';')
+              .Append(r.Win32Error?.ToString() ?? string.Empty).Append(';')
+              .Append(Escape(r.Error ?? string.Empty)).Append(';')
+              .Append(r.Simulated ? "sim" : "nao")
+              .AppendLine();
+        }
+
+        return sb.ToString();
+    }
+
+    public static string Ndjson(IReadOnlyList<ReadingRecord> records)
+    {
+        var sb = new StringBuilder();
+        foreach (var record in records)
+        {
+            sb.AppendLine(JsonSerializer.Serialize(record, JsonOptions));
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>Exportacao JSON consolidada: auditoria + transicoes + rotulagem de modo.</summary>
+    public static string DiagnosticsJson(
+        IReadOnlyList<ReadingRecord> records,
+        IReadOnlyList<TransitionEvent> transitions,
+        string mechanismName,
+        bool simulated,
+        IReadOnlyList<string> notes)
+    {
+        var payload = new
+        {
+            projeto = "IRIS XE THERMAL MSR READER",
+            gerado_em_utc = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+            mecanismo = mechanismName,
+            modo_simulado = simulated,
+            aviso = simulated
+                ? "Os valores deste arquivo sao de teste manual (SIMULADOS) e nao representam leituras do hardware."
+                : null,
+            operacoes_de_escrita_realizadas = 0,
+            notas = notes,
+            transicoes = transitions.Select(t => new
+            {
+                t.DetectedAtUtc,
+                t.MsrAddress,
+                t.Scope,
+                t.Indicator,
+                t.Kind,
+                t.From,
+                t.To,
+                t.IntervalSeconds,
+                t.HonestTimestampNote,
+            }),
+            auditoria = records,
+        };
+
+        return JsonSerializer.Serialize(payload, JsonOptions);
+    }
+
+    private static string Escape(string field) =>
+        field.Contains(';') || field.Contains('"') || field.Contains('\n')
+            ? $"\"{field.Replace("\"", "\"\"")}\""
+            : field;
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs ==========
+
+using System.Globalization;
+using System.Text.RegularExpressions;
+
+namespace IrisXe.Thermal.Core.Hardware;
+
+/// <summary>
+/// Assinatura do processador equivalente a CPUID.1:EAX (famÃ­lia/modelo/stepping).
+///
+/// Estrategia (Fase 1, sem driver): a assinatura e obtida da cadeia "Identifier" do registro
+/// Windows (HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0), que o proprio sistema
+/// operacional deriva da instrucao CPUID durante o boot â€” ex.: "Intel64 Family 6 Model 140
+/// Stepping 1". Isso equivale a consultar CPUID sem executar codigo nativo de usuario.
+/// O nome comercial vem de "ProcessorNameString" na mesma chave.
+///
+/// Tiger Lake-U (i7-1195G7): Family 6, Model 0x8C (140 decimal).
+/// Leituras em outros processadores sao RECUSADAS (requisito 9.1 â€” impedir leituras
+/// incompativeis com o hardware detectado).
+/// </summary>
+public sealed record CpuSignature
+{
+    /// <summary>Model CPUID do Tiger Lake-U (i7-1195G7): 0x8C = 140.</summary>
+    public const int TigerLakeUModel = 0x8C;
+
+    public const int IntelFamily = 6;
+
+    private static readonly Regex IdentifierRegex =
+        new(@"Family\s+(?<family>\d+)\s+Model\s+(?<model>\d+)\s+Stepping\s+(?<stepping>\d+)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+    public required string Identifier { get; init; }
+
+    public required string BrandName { get; init; }
+
+    public required int Family { get; init; }
+
+    public required int Model { get; init; }
+
+    public required int Stepping { get; init; }
+
+    public bool IsIntelFamily6 =>
+        Identifier.StartsWith("Intel64", StringComparison.OrdinalIgnoreCase) && Family == IntelFamily;
+
+    public bool IsTigerLake1195G7 => IsIntelFamily6 && Model == TigerLakeUModel;
+
+    public string Description => $"{BrandName} â€” {Identifier} (FamÃ­lia {Family}, Modelo 0x{Model:X}, Stepping {Stepping})";
+
+    public string? UnsupportedReason
+    {
+        get
+        {
+            if (!Identifier.StartsWith("Intel64", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"Processador nÃ£o Intel64 ({Identifier}). As leituras foram recusadas: o hardware detectado nÃ£o Ã© o alvo do projeto.";
+            }
+
+            if (Family != IntelFamily)
+            {
+                return $"FamÃ­lia CPUID {Family} nÃ£o suportada (esperado: 6). As leituras foram recusadas.";
+            }
+
+            if (Model != TigerLakeUModel)
+            {
+                return $"Modelo CPUID 0x{Model:X} nÃ£o Ã© o Tiger Lake-U 0x8C do i7-1195G7. As leituras foram recusadas: "
+                     + "a decodificaÃ§Ã£o foi validada apenas para este processador (requisito 9.1).";
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>Analisador da cadeia "Identifier" do registro do Windows.</summary>
+    /// <exception cref="FormatException">Quando a cadeia nao contem a assinatura familia/modelo/stepping.</exception>
+    public static CpuSignature Parse(string identifier, string brandName)
+    {
+        var match = IdentifierRegex.Match(identifier);
+        if (!match.Success)
+        {
+            throw new FormatException(
+                $"NÃ£o foi possÃ­vel interpretar a assinatura do processador a partir de '{identifier}'. "
+                + "Formato esperado: 'Intel64 Family 6 Model 140 Stepping 1'.");
+        }
+
+        return new CpuSignature
+        {
+            Identifier = identifier.Trim(),
+            BrandName = brandName.Trim(),
+            Family = int.Parse(match.Groups["family"].Value, CultureInfo.InvariantCulture),
+            Model = int.Parse(match.Groups["model"].Value, CultureInfo.InvariantCulture),
+            Stepping = int.Parse(match.Groups["stepping"].Value, CultureInfo.InvariantCulture),
+        };
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs ==========
+
+namespace IrisXe.Thermal.Core.Security;
+
+/// <summary>
+/// Politica de leitura: SOMENTE os tres MSRs autorizados podem ser consultados, por qualquer
+/// mecanismo (futuro driver incluso â€” requisito 15.4: "o driver devera aceitar somente
+/// operacoes de leitura dos registradores previamente autorizados; nao devera aceitar
+/// enderecos arbitrarios"). Verificada no limite do aplicativo, antes de qualquer acesso.
+/// </summary>
+public static class ReadPolicy
+{
+    public static IReadOnlySet<int> AllowedAddresses { get; } =
+        new HashSet<int>(Core.MsrAddress.All);
+
+    public static bool IsAllowed(int msrAddress) => Core.MsrAddress.IsAuthorized(msrAddress);
+
+    /// <summary>
+    /// Auto-verificacoes exibidas na aba Seguranca. Cada item descreve uma garantia estrutural
+    /// do design (nao uma afirmacao sem verificacao).
+    /// </summary>
+    public static IReadOnlyList<(string Assertion, string Evidence)> SelfCheck() => new List<(string, string)>
+    {
+        ("Nenhum metodo de escrita existe na interface de acesso",
+            "A interface IMsrReader declara apenas Read(grupo, processador, endereco). Nao existe Write/WRMSR em nenhum "
+          + "ponto do codigo â€” a garantia e estrutural (o compilador impede uso inexistente)."),
+        ("Enderecos restritos a 0x1A2, 0x19C e 0x1B1",
+            "Toda leitura passa por ReadPolicy.IsAllowed antes do acesso; enderecos arbitrarios sao recusados com erro "
+          + "auditado. A mesma restricao sera imposta no driver da Fase 2 (lista fechada no IOCTL)."),
+        ("Nenhuma instrucao WRMSR no projeto",
+            "O codigo-fonte nao contem WRMSR nem chamadas a drivers de escrita. A Fase 2 entregara o driver com codigo "
+          + "aberto para auditoria antes de qualquer uso."),
+        ("Nenhuma alteracao de configuracao do Windows",
+            "O aplicativo nao executa bcdedit, nao altera registro de configuracao do sistema, nao desativa Secure Boot, "
+          + "VBS, HVCI, Integridade da Memoria ou blocklist de drivers, e nao ativa TESTSIGNING."),
+        ("Nenhuma escrita em MMIO / PCI Config / memoria fisica",
+            "Nao existe acesso a memoria fisica, MMIO ou espaco de configuracao PCI em nenhuma camada."),
+        ("Bits historicos preservados",
+            "A leitura (RDMSR) nao limpa os bits de log R/WC0; o aplicativo nunca escreve nos registradores para "
+          + "reiniciar indicadores. O historico e tambem registrado em log de software, imune a limpezas feitas "
+          + "por outras ferramentas."),
+        ("Dados nao reais sempre rotulados",
+            "Valores fornecidos manualmente (modo de teste) sao marcados como SIMULADO em cada exibicao e em cada "
+          + "linha do log de auditoria. Nunca sao apresentados como leituras reais."),
+    };
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\DecoderTests.cs ==========
+
+using IrisXe.Thermal.Core.Decoding;
+using Xunit;
+
+namespace IrisXe.Thermal.Core.Tests;
+
+/// <summary>
+/// Vetores de teste da decodificacao. Os valores sao EXEMPLOS DETERMINISTICOS construidos
+/// a partir das definicoes documentadas (nao sao leituras de hardware) â€” servem para validar
+/// mascaras, deslocamentos e calculos contra as fontes citadas em cada decodificador.
+/// </summary>
+public class TemperatureTargetDecodeTests
+{
+    private const string DsTgl = "631121-012";
+
+    [Fact]
+    public void TjMax_100_Offset13_Tau0_Decodifica_CasoDoEnunciado()
+    {
+        // 0x0D640000: TjMAX=0x64 (100 Â°C) em [23:16]; offset 13 em [29:24]; Tau=0 em [6:0].
+        var decoded = TemperatureTargetDecoding.Decode(0x0D64_0000);
+
+        Assert.Equal(100, decoded.TjMaxC);
+        Assert.Equal(13, decoded.OffsetTgl);
+        Assert.Equal(13, decoded.OffsetSdm);
+        Assert.False(decoded.OffsetDivergent);
+        Assert.Equal(0, decoded.TauRaw);
+        Assert.Equal(87, decoded.AverageTargetC);
+    }
+
+    [Fact]
+    public void TjMax_NaoPresumido_105C()
+    {
+        // 0x00690055: TjMAX=0x69 (105 Â°C); offset 0; Tau=0x55 (85) â€” bruto, sem conversao.
+        var decoded = TemperatureTargetDecoding.Decode(0x0069_0055);
+
+        Assert.Equal(105, decoded.TjMaxC);
+        Assert.Equal(0, decoded.OffsetTgl);
+        Assert.Equal(105, decoded.AverageTargetC);
+        Assert.Equal(0x55, decoded.TauRaw);
+    }
+
+    [Fact]
+    public void DivergenciaEntreMascaras_E_Sinalizada()
+    {
+        // 0x10640000: bits [29:28]=01 setados â€” mascara TGL [29:24] le 16; mascara SDM [27:24] le 0.
+        var decoded = TemperatureTargetDecoding.Decode(0x1064_0000);
+
+        Assert.Equal(16, decoded.OffsetTgl);
+        Assert.Equal(0, decoded.OffsetSdm);
+        Assert.True(decoded.OffsetDivergent);
+        Assert.Equal(84, decoded.AverageTargetC);
+    }
+
+    [Fact]
+    public void CamposReservados_SaoListadosSemInterpretacao()
+    {
+        var decoded = TemperatureTargetDecoding.Decode(0xFFFF_FFFF_FFFF_FFFF);
+
+        var reserved = decoded.Fields.Where(f => f.Kind == "Reservado").ToList();
+        Assert.Contains(reserved, f => f.Bits == "[63:30]");
+        Assert.Contains(reserved, f => f.Bits == "[15:7]");
+        Assert.All(reserved, f => Assert.Contains("NAO interpretad", f.Meaning, StringComparison.OrdinalIgnoreCase));
+        // E a citacao do datasheet Tiger Lake aparece nos campos decodificados:
+        Assert.Contains(decoded.Fields, f => f.Citation.Contains(DsTgl));
+    }
+
+    [Fact]
+    public void Tau_NaoTemConversaoParaSegundos_LimitacaoDeclarada()
+    {
+        var decoded = TemperatureTargetDecoding.Decode(0x0D64_0000 | 0x7F);
+
+        Assert.Equal(0x7F, decoded.TauRaw);
+        var tauField = decoded.Fields.Single(f => f.Name.Contains("Tau"));
+        Assert.Contains("LIMITACAO", tauField.Note, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("NAO e documentada", tauField.Note, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+public class ThermStatusDecodeTests
+{
+    [Fact]
+    public void LeituraValida_CalculaTemperatura_TjMaxMenosReadout()
+    {
+        // 0x883C0000: bit31=1 (valido); resolucao [30:27]=1; readout [22:16]=0x3C (60).
+        var decoded = ThermStatusDecoding.Decode(0x883C_0000, tjMaxC: 100);
+
+        Assert.True(decoded.ReadingValid);
+        Assert.Equal(60, decoded.DigitalReadout);
+        Assert.Equal(1, decoded.ResolutionC);
+        Assert.Equal(40, decoded.TemperatureC);
+        Assert.False(decoded.ThermalStatus);
+        Assert.False(decoded.ProchotEvent);
+    }
+
+    [Fact]
+    public void ThrottlingAtivoComLog()
+    {
+        // 0x88120003: bit0=1 (status termico corrente), bit1=1 (log), readout=0x12 (18).
+        var decoded = ThermStatusDecoding.Decode(0x8812_0003, tjMaxC: 100);
+
+        Assert.True(decoded.ThermalStatus);
+        Assert.True(decoded.ThermalStatusLog);
+        Assert.Equal(82, decoded.TemperatureC);
+    }
+
+    [Fact]
+    public void ReadoutInvalido_TemperaturaNaoDisponivel()
+    {
+        // bit31=0: leitura invalida â€” temperatura deve ser nula (nunca presumida).
+        var decoded = ThermStatusDecoding.Decode(0x0000_003C, tjMaxC: 100);
+
+        Assert.False(decoded.ReadingValid);
+        Assert.Null(decoded.TemperatureC);
+    }
+
+    [Fact]
+    public void ProchotExternoCorrente_ClassificadoComoExterno()
+    {
+        // 0x8820000C: bit2=1 (PROCHOT event corrente por componente externo), bit3=1 (log),
+        // bit0=0 (sem evento termico interno), readout=0x20 (32).
+        var decoded = ThermStatusDecoding.Decode(0x8820_000C, tjMaxC: 100);
+
+        Assert.True(decoded.ProchotEvent);
+        Assert.True(decoded.ProchotLog);
+        Assert.False(decoded.ThermalStatus);
+        Assert.Equal(68, decoded.TemperatureC);
+
+        var pkg = PackageThermStatusDecoding.Decode(0x0000_0000, tjMaxC: 100);
+        var assessment = ProchotAssessment.Assess(decoded, pkg);
+        Assert.Contains("externo", assessment.Classification, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("NAO identifica qual dispositivo fisico", assessment.Caveat);
+    }
+}
+
+public class PackageThermStatusDecodeTests
+{
+    [Fact]
+    public void Pacote_DecodificaReadoutELogs()
+    {
+        // 0x88280808: readout 0x28 (40) -> 60 Â°C; bit3=1 (0x8, PROCHOT log); bit11=1 (0x800, power limitation log).
+        var decoded = PackageThermStatusDecoding.Decode(0x8828_0808, tjMaxC: 100);
+
+        Assert.Equal(40, decoded.DigitalReadout);
+        Assert.Equal(60, decoded.TemperatureC);
+        Assert.True(decoded.ProchotLog);
+        Assert.True(decoded.PowerLimitLog);
+        Assert.False(decoded.ThermalStatus);
+        Assert.False(decoded.ProchotEvent);
+    }
+
+    [Fact]
+    public void BitsAcimaDe22_SaoTratadosComoNaoDocumentados()
+    {
+        var decoded = PackageThermStatusDecoding.Decode(0xFFFF_FFFF_FFFF_FFFF, tjMaxC: 100);
+
+        var undocumented = decoded.Fields.Single(f => f.Name.StartsWith("Nao documentado"));
+        Assert.Equal("Reservado", undocumented.Kind);
+        Assert.Contains("NAO interpretados", undocumented.Meaning);
+    }
+
+    [Fact]
+    public void ApenasLogSetado_OrigemNaoConfirmavel()
+    {
+        var core = ThermStatusDecoding.Decode(0x0000_000A, tjMaxC: 100); // bits 1 e 3
+        var pkg = PackageThermStatusDecoding.Decode(0x0000_0008, tjMaxC: 100); // bit 3
+
+        var assessment = ProchotAssessment.Assess(core, pkg);
+
+        Assert.Contains("nao confirmavel", assessment.Classification, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("NAO pode ser confirmada", assessment.Caveat);
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\IrisXe.Thermal.Core.Tests.csproj ==========
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>IrisXe.Thermal.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IrisXe.Thermal.Core\IrisXe.Thermal.Core.csproj" />
+  </ItemGroup>
+
+</Project>
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\PolicyAndHardwareTests.cs ==========
+
+using IrisXe.Thermal.Core;
+using IrisXe.Thermal.Core.Access;
+using IrisXe.Thermal.Core.Diagnostics;
+using IrisXe.Thermal.Core.Export;
+using IrisXe.Thermal.Core.Hardware;
+using IrisXe.Thermal.Core.Security;
+using Xunit;
+
+namespace IrisXe.Thermal.Core.Tests;
+
+public class CpuSignatureTests
+{
+    [Fact]
+    public void Parse_I7_1195G7_E_Reconhecido()
+    {
+        var signature = CpuSignature.Parse(
+            "Intel64 Family 6 Model 140 Stepping 1",
+            "11th Gen Intel(R) Core(TM) i7-1195G7 @ 2.90GHz");
+
+        Assert.True(signature.IsIntelFamily6);
+        Assert.True(signature.IsTigerLake1195G7);
+        Assert.Null(signature.UnsupportedReason);
+        Assert.Equal(0x8C, signature.Model);
+    }
+
+    [Fact]
+    public void Parse_OutroModelo_E_Recusado()
+    {
+        var signature = CpuSignature.Parse("Intel64 Family 6 Model 126 Stepping 5", "Ice Lake CPU");
+
+        Assert.False(signature.IsTigerLake1195G7);
+        Assert.NotNull(signature.UnsupportedReason);
+        Assert.Contains("recusadas", signature.UnsupportedReason);
+    }
+
+    [Fact]
+    public void Parse_Amd_E_Recusado()
+    {
+        var signature = CpuSignature.Parse("AMD64 Family 25 Model 80 Stepping 0", "AMD Ryzen");
+
+        Assert.False(signature.IsIntelFamily6);
+        Assert.NotNull(signature.UnsupportedReason);
+    }
+}
+
+public class ReadPolicyTests
+{
+    [Fact]
+    public void Apenas_Os_Tres_Msrs_Sao_Autorizados()
+    {
+        Assert.True(ReadPolicy.IsAllowed(0x1A2));
+        Assert.True(ReadPolicy.IsAllowed(0x19C));
+        Assert.True(ReadPolicy.IsAllowed(0x1B1));
+        Assert.False(ReadPolicy.IsAllowed(0xCE));   // MSR_PLATFORM_INFO
+        Assert.False(ReadPolicy.IsAllowed(0x1FC));  // MSR_POWER_CTL
+        Assert.False(ReadPolicy.IsAllowed(0xE8));   // MSR_RDTSC
+    }
+
+    [Fact]
+    public void ManualReader_Recusa_EnderecosNaoAutorizados()
+    {
+        var reader = new ManualMsrReader();
+
+        var result = reader.Read(0, 0, 0xCE);
+
+        Assert.False(result.Success);
+        Assert.Contains("nÃ£o estÃ¡ na lista autorizada", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ManualReader_SetValue_EnderecoNaoAutorizado_LancaExcecao()
+    {
+        var reader = new ManualMsrReader();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => reader.SetValue(0x610, 0, 0));
+    }
+
+    [Fact]
+    public void ManualReader_SemValor_NaoDisponivelComMotivo()
+    {
+        var reader = new ManualMsrReader();
+
+        var result = reader.Read(0, 3, MsrAddress.ThermStatus);
+
+        Assert.False(result.Success);
+        Assert.StartsWith("NÃ£o disponÃ­vel", result.ErrorMessage);
+    }
+
+    [Fact]
+    public void UnavailableReader_NuncaRetornaValor()
+    {
+        var reader = new UnavailableMsrReader();
+
+        foreach (var address in MsrAddress.All)
+        {
+            var result = reader.Read(0, 0, address);
+            Assert.False(result.Success);
+            Assert.StartsWith("NÃ£o disponÃ­vel", result.ErrorMessage);
+            Assert.False(result.Simulated);
+        }
+    }
+
+    [Fact]
+    public void SelfCheck_DeclaraGarantiasEstruturais()
+    {
+        var checks = ReadPolicy.SelfCheck();
+
+        Assert.Contains(checks, c => c.Assertion.Contains("escrita"));
+        Assert.Contains(checks, c => c.Assertion.Contains("0x1A2"));
+        Assert.All(checks, c => Assert.False(string.IsNullOrWhiteSpace(c.Evidence)));
+    }
+}
+
+
+
+========== ermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs ==========
+
+using IrisXe.Thermal.Core.Diagnostics;
+using IrisXe.Thermal.Core.Export;
+using Xunit;
+
+namespace IrisXe.Thermal.Core.Tests;
+
+public class TransitionAndExportTests
+{
+    private static (int Group, int Number)[] Lps() => Enumerable.Range(0, 8).Select(i => (0, i)).ToArray();
+
+    private static SampleSnapshot SampleWith(ulong thermStatus, ulong? package = null, ulong target = 0x0D64_0000)
+    {
+        var manual = new Access.ManualMsrReader();
+        foreach (var (_, lp) in Lps())
+        {
+            manual.SetValue(MsrAddress.ThermStatus, lp, thermStatus);
+            manual.SetValue(MsrAddress.TemperatureTarget, lp, target);
+            if (package is not null)
+            {
+                manual.SetValue(MsrAddress.PackageThermStatus, lp, package.Value);
+            }
+        }
+
+        var audit = new AuditLog();
+        var engine = new DiagnosticEngine(manual, audit, Lps());
+        return engine.CaptureSample();
+    }
+
+    [Fact]
+    public void Transicao_Ativacao_E_Detectada_ComNotaHonestade()
+    {
+        var before = SampleWith(0x883C_0000); // sem evento
+        var after = SampleWith(0x883C_0003);  // bit0 e bit1 ativados
+
+        var transitions = TransitionDetector.Diff(before, after);
+
+        Assert.Contains(transitions, t => t.Indicator == "Thermal Status" && t.From == "inativo" && t.To == "ativo");
+        Assert.Contains(transitions, t => t.Indicator == "Thermal Status Log" && t.To == "registrado");
+        Assert.All(transitions, t => Assert.Contains("nÃ£o pode ser determinado", t.HonestTimestampNote));
+    }
+
+    [Fact]
+    public void Transicoes_SemMudanca_Nao_GeramEventos()
+    {
+        var before = SampleWith(0x883C_0000);
+        var after = SampleWith(0x883C_0000);
+
+        Assert.Empty(TransitionDetector.Diff(before, after));
+    }
+
+    [Fact]
+    public void Auditoria_Registra_CamposDoRequisito_E_ExportaCsv()
+    {
+        var audit = new AuditLog();
+        var engine = new DiagnosticEngine(new Access.ManualMsrReader(), audit, Lps());
+        engine.CaptureSample();
+
+        var csv = ExportService.AuditCsv(audit.Snapshot());
+
+        Assert.Contains("timestamp_utc", csv);
+        Assert.Contains("processor_number", csv);
+        Assert.Contains("msr_address", csv);
+        Assert.Contains("raw_hex", csv);
+        Assert.Contains("simulated", csv);
+        Assert.Contains("0x19C", csv);
+        Assert.Contains("0x1A2", csv);
+        Assert.Contains("0x1B1", csv);
+        // Modo manual Ã© sempre rotulado como simulado:
+        Assert.Contains(";sim", csv, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ExportacaoJson_DeclaraZeroOperacoesDeEscrita()
+    {
+        var audit = new AuditLog();
+        var engine = new DiagnosticEngine(new Access.ManualMsrReader(), audit, Lps());
+        engine.CaptureSample();
+
+        var json = ExportService.DiagnosticsJson(
+            audit.Snapshot(), engine.TransitionLog, engine.Reader.MechanismName, engine.Reader.IsSimulated, Array.Empty<string>());
+
+        Assert.Contains("\"operacoes_de_escrita_realizadas\": 0", json);
+        Assert.Contains("SIMULADOS", json); // aviso de modo simulado presente
+    }
+
+    [Fact]
+    public void Motor_ComLeitorIndisponivel_RegistraFalhaSemValoresPresumidos()
+    {
+        var audit = new AuditLog();
+        var engine = new DiagnosticEngine(new Access.UnavailableMsrReader(), audit, Lps());
+
+        var sample = engine.CaptureSample();
+
+        Assert.Null(sample.TemperatureTarget);
+        Assert.Null(sample.Package);
+        Assert.All(sample.CoreReadings, r => Assert.False(r.Result.Success));
+        Assert.Contains(audit.Snapshot(), r => r.Status == "Falha" && r.RawHex is null);
+        Assert.Contains(sample.Notes, n => n.Contains("Nao disponivel") || n.Contains("NÃ£o disponÃ­vel"));
+    }
+
+    [Fact]
+    public void ComparacaoThrottleStop_DetectaMudancaE_TraziAviso()
+    {
+        var engine = new DiagnosticEngine(new Access.ManualMsrReader(), new AuditLog(), Lps());
+        // Preenche manual: antes offset 13 (0x0D640000), depois offset 13 inalterado em 0x1A2,
+        // mas com mudanca no status termico (simulando um evento entre as amostras).
+        var manual = (Access.ManualMsrReader)engine.Reader;
+        foreach (var (_, lp) in Lps())
+        {
+            manual.SetValue(MsrAddress.TemperatureTarget, lp, 0x0D64_0000);
+            manual.SetValue(MsrAddress.PackageThermStatus, lp, 0x8828_0000);
+            manual.SetValue(MsrAddress.ThermStatus, lp, 0x883C_0000);
+        }
+
+        var before = ThrottleStopComparison.FromSample(engine.CaptureSample(), "ANTES");
+        foreach (var (_, lp) in Lps())
+        {
+            manual.SetValue(MsrAddress.ThermStatus, lp, 0x883C_0003); // mudanca
+        }
+
+        var after = ThrottleStopComparison.FromSample(engine.CaptureSample(), "DEPOIS");
+        var report = ThrottleStopComparison.Compare(before, after);
+
+        Assert.True(report.Simulated);
+        Assert.Contains(report.Entries, e => e.MsrAddress == MsrAddress.ThermStatus && e.Changed);
+        Assert.DoesNotContain(report.Entries, e => e.MsrAddress == MsrAddress.TemperatureTarget && e.Changed);
+        Assert.Contains("NAO prova causalidade", ComparisonReport.Disclaimer);
+    }
+}
+
+
+
+========== BUSCA DE PONTOS SENSIVEIS ==========
+
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:131: using var baseKey = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:158: SetId("signature", "Não disponível — " + UiTexts.CpuIdNote);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:168: using var cpuKey = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:206: using var osKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:224: /// <summary>Numero de nucleos fisicos via WMI (Win32_Processor). Falha = Nao disponivel com motivo.</summary>
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:234: using var searcher = new System.Management.ManagementObjectSearcher(
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:235: "SELECT NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:244: return $"{cores} núcleos físicos / {lps ?? "N/D"} processadores lógicos (Win32_Processor)";
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:418: AddRow(panel, "Assinatura CPUID (via registro do Windows)", signatureLabel);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:462: notes.AppendText("• " + UiTexts.CpuIdNote + Environment.NewLine);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:892: _manual.SetValueForAll(address, _logicalProcessors.Select(p => p.Number), value);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:1004: File.WriteAllText(dialog.FileName, content, Encoding.UTF8);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:1153: sb.AppendLine("Operações permitidas: leitura (RDMSR conceitual) dos MSRs 0x1A2, 0x19C e 0x1B1.");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\MainForm.cs:1154: sb.AppendLine("Operações proibidas e NÃO IMPLEMENTADAS: WRMSR; escrita em MSR/MMIO/PCI Config/memória física;");
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs:13: "MODO SOMENTE LEITURA — este aplicativo não executa WRMSR, não escreve em registradores, "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs:43: "Bits de LOG (históricos) são R/WC0: apenas uma ESCRITA de 0 por software os limpa. A leitura (RDMSR) não "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs:53: public const string CpuIdNote =
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs:55: + "(HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor), derivada pelo próprio sistema operacional da "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.App\UiTexts.cs:56: + "instrução CPUID no boot — equivale a CPUID.1:EAX sem executar código nativo de usuário. O nome comercial "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\IMsrReader.cs:33: /// o compilador torna impossivel ao restante do codigo invocar um WRMSR, pois nao existe
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\ManualMsrReader.cs:30: public void SetValue(int msrAddress, int processorNumber, ulong value)
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\ManualMsrReader.cs:52: public void SetValueForAll(int msrAddress, IEnumerable<int> processorNumbers, ulong value)
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Access\ManualMsrReader.cs:56: SetValue(msrAddress, lp, value);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\PackageThermStatusDecoding.cs:7: /// CPUID.06H:EAX (bit 6 — "Package thermal status via MSR 0x1B1").
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\PackageThermStatusDecoding.cs:9: /// bits de log (R/WC0) = historico; RDMSR nao os limpa e este aplicativo nunca escreve.
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\PackageThermStatusDecoding.cs:48: Access = kind == "Historico" ? "R/WC0 (log — limpo apenas por escrita de 0; RDMSR nao limpa)" : "RO",
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\PackageThermStatusDecoding.cs:57: + "limpeza por software; RDMSR nao o limpa.", "Historico"),
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ThermStatusDecoding.cs:10: ///     a instrucao RDMSR nao os limpa — este aplicativo nunca escreve nos registradores).
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ThermStatusDecoding.cs:59: Access = kind == "Historico" ? "R/WC0 (log — limpo apenas por escrita de 0; RDMSR nao limpa)" : "RO",
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ThermStatusDecoding.cs:68: + "ultimo reset ou desde a ultima limpeza por software. Permanece setado; RDMSR nao o limpa.", "Historico"),
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Decoding\ThermStatusDecoding.cs:72: + "em algum momento desde o ultimo reset/limpeza. Permanece setado; RDMSR nao o limpa.", "Historico"),
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Diagnostics\DiagnosticEngine.cs:45: /// Executa UMA rodada de amostragem (somente RDMSR conceitual; na Fase 1 os valores vem
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:7: /// Assinatura do processador equivalente a CPUID.1:EAX (família/modelo/stepping).
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:11: /// operacional deriva da instrucao CPUID durante o boot — ex.: "Intel64 Family 6 Model 140
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:12: /// Stepping 1". Isso equivale a consultar CPUID sem executar codigo nativo de usuario.
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:21: /// <summary>Model CPUID do Tiger Lake-U (i7-1195G7): 0x8C = 140.</summary>
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:58: return $"Família CPUID {Family} não suportada (esperado: 6). As leituras foram recusadas.";
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Hardware\CpuSignature.cs:63: return $"Modelo CPUID 0x{Model:X} não é o Tiger Lake-U 0x8C do i7-1195G7. As leituras foram recusadas: "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs:23: "A interface IMsrReader declara apenas Read(grupo, processador, endereco). Nao existe Write/WRMSR em nenhum "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs:27: + "auditado. A mesma restricao sera imposta no driver da Fase 2 (lista fechada no IOCTL)."),
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs:28: ("Nenhuma instrucao WRMSR no projeto",
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs:29: "O codigo-fonte nao contem WRMSR nem chamadas a drivers de escrita. A Fase 2 entregara o driver com codigo "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core\Security\ReadPolicy.cs:37: "A leitura (RDMSR) nao limpa os bits de log R/WC0; o aplicativo nunca escreve nos registradores para "
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\PolicyAndHardwareTests.cs:71: public void ManualReader_SetValue_EnderecoNaoAutorizado_LancaExcecao()
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\PolicyAndHardwareTests.cs:75: Assert.Throws<ArgumentOutOfRangeException>(() => reader.SetValue(0x610, 0, 0));
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:16: manual.SetValue(MsrAddress.ThermStatus, lp, thermStatus);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:17: manual.SetValue(MsrAddress.TemperatureTarget, lp, target);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:20: manual.SetValue(MsrAddress.PackageThermStatus, lp, package.Value);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:110: manual.SetValue(MsrAddress.TemperatureTarget, lp, 0x0D64_0000);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:111: manual.SetValue(MsrAddress.PackageThermStatus, lp, 0x8828_0000);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:112: manual.SetValue(MsrAddress.ThermStatus, lp, 0x883C_0000);
+C:\Users\nandi\Downloads\Dev Intel Luiz Thermal\IrisXeThermal-Fase1-codigo-fonte\desktop\src\IrisXe.Thermal.Core.Tests\TransitionAndExportTests.cs:118: manual.SetValue(MsrAddress.ThermStatus, lp, 0x883C_0003); // mudanca
